@@ -9,3 +9,6 @@ spring:
     config:
       username: ${SPRING_SECURITY_USER_NAME:test}
       password: ${SPRING_SECURITY_USER_PASSWORD:test}
+
+server:
+  port: 8282
