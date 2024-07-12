@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    container_name: pg-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 452389
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - forum-net
+    restart: unless-stopped
+  mongo:
+    image: mongo
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: vitaliy
+      MONGO_INITDB_ROOT_PASSWORD: 452389
+    volumes:
+      - mongo-data:/data
+    networks:
+      - forum-net
+
+networks:
+  forum-net:
+    driver: bridge
+
+volumes:
+  pg-data:
+  mongo-data:
