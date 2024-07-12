@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: user-service
   config:
@@ -7,5 +9,6 @@ spring:
     config:
       username: ${SPRING_SECURITY_USER_NAME:test}
       password: ${SPRING_SECURITY_USER_PASSWORD:test}
+
 
 
