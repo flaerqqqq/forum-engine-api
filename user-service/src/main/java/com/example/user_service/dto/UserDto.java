@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponseDto {
+public class UserDto {
 
     private String id;
 
@@ -20,4 +20,6 @@ public class UserResponseDto {
     private String email;
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime lastModifiedAt;
 }
