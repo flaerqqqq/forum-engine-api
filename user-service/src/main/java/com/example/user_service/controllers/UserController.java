@@ -4,6 +4,7 @@ import com.example.user_service.dto.UserCreateRequestDto;
 import com.example.user_service.dto.UserDto;
 import com.example.user_service.dto.UserResponseDto;
 import com.example.user_service.mappers.UserMapper;
+import com.example.user_service.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
