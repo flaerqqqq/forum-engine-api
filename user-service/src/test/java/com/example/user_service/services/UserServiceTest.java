@@ -1,11 +1,17 @@
 package com.example.user_service.services;
 
 import com.example.user_service.dto.UserDto;
+import com.example.user_service.exceptions.EmailAlreadyInUseException;
+import com.example.user_service.exceptions.UsernameAlreadyInUseException;
 import com.example.user_service.mappers.UserMapper;
 import com.example.user_service.model.User;
+import com.example.user_service.repositories.UserRepository;
+import com.example.user_service.services.impls.UserServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,13 +28,17 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class UserServiceTest {
 
-    @Autowired
+    @Mock
     UserMapper userMapper;
 
-    @MockBean
+    @Mock
     PasswordEncoder passwordEncoder;
 
-    @MockBean UserRepository userRepository;
+    @Mock
+    UserRepository userRepository;
+
+    @InjectMocks
+    private UserServiceImpl userService;
 
     private UserDto userDto;
     private User user;
@@ -73,13 +83,13 @@ public class UserServiceTest {
     void create_shouldThrow_whenUsernameInUse() {
         when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.create(userDto));
+        assertThatThrownBy(() -> userService.create(userDto)).isInstanceOf(UsernameAlreadyInUseException.class);
     }
 
     @Test
     void create_shouldThrow_whenEmailInUse() {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.create(userDto));
+        assertThatThrownBy(() -> userService.create(userDto)).isInstanceOf(EmailAlreadyInUseException.class);
     }
 }
