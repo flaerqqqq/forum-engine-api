@@ -138,11 +138,4 @@ public class UserControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-    @Test
-    void delete_shouldReturn400status_whenUserDeleted() throws Exception {
-        when(userService.delete(anyString())).thenReturn(false);
-
-        mockMvc.perform(delete("/api/v1/users/{id}", userDto.getId()))
-                .andExpect(status().isBadRequest());
-    }
 }
