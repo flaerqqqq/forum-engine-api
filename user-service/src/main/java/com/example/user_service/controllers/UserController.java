@@ -6,6 +6,8 @@ import com.example.user_service.dto.UserResponseDto;
 import com.example.user_service.mappers.UserMapper;
 import com.example.user_service.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,15 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getById(@PathVariable String id) {
         UserDto user = userService.getById(id);
         return new ResponseEntity<>(userMapper.toResponseDto(user), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<UserResponseDto>> getAll(Pageable pageable) {
+        Page<UserDto> pageOfUsers = userService.getAll(pageable);
+        if (pageOfUsers.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return new ResponseEntity<>(pageOfUsers.map(userMapper::toResponseDto), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

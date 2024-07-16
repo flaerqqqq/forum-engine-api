@@ -8,6 +8,8 @@ import com.example.user_service.model.User;
 import com.example.user_service.repositories.UserRepository;
 import com.example.user_service.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Override
     public UserDto create(UserDto userDto) {
         if (userRepository.existsByUsername(userDto.getUsername()))  {
             throw new UsernameAlreadyInUseException("User with such username already exists: %s".formatted(userDto.getUsername()));
@@ -39,6 +42,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(String id) {
+        return null;
+    }
+
+    @Override
+    public Page<UserDto> getAll(Pageable pageable) {
         return null;
     }
 
