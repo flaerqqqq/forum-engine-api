@@ -25,8 +25,7 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
@@ -97,7 +96,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void create_shouldReturn204Status_whenValidRequestData() throws Exception {
+    void create_shouldReturn201Status_whenValidRequestData() throws Exception {
         when(userMapper.toDto(any(UserCreateRequestDto.class))).thenReturn(userDto);
         when(userMapper.toResponseDto(any(UserDto.class))).thenReturn(userResponseDto);
         when(userService.create(any(UserDto.class))).thenReturn(userDto);
@@ -129,5 +128,21 @@ public class UserControllerTest {
 
         mockMvc.perform(get("/api/v1/users/{id}", userDto.getId()))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void delete_shouldReturn204status_whenUserDeleted() throws Exception {
+        when(userService.delete(anyString())).thenReturn(true);
+
+        mockMvc.perform(delete("/api/v1/users/{id}", userDto.getId()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void delete_shouldReturn400status_whenUserDeleted() throws Exception {
+        when(userService.delete(anyString())).thenReturn(false);
+
+        mockMvc.perform(delete("/api/v1/users/{id}", userDto.getId()))
+                .andExpect(status().isBadRequest());
     }
 }
