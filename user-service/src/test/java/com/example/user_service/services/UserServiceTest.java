@@ -18,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -46,6 +47,7 @@ public class UserServiceTest {
     @BeforeEach
     public void setup() {
         userDto = UserDto.builder()
+                .id("uuid")
                 .username("test")
                 .email("test@example.com")
                 .password("Passss123!")
@@ -53,6 +55,7 @@ public class UserServiceTest {
                 .lastModifiedAt(LocalDateTime.now())
                 .build();
         user = User.builder()
+                .id("uuid")
                 .username("test")
                 .email("test@example.com")
                 .password("Passss123!")
@@ -91,5 +94,17 @@ public class UserServiceTest {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
         assertThatThrownBy(() -> userService.create(userDto)).isInstanceOf(EmailAlreadyInUseException.class);
+    }
+
+    @Test
+    void getById_shouldReturn_ifIdCorrect() {
+        when(userRepository.existsById(anyString())).thenReturn(true);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+    }
+
+    @Test
+    void getById_shouldThrow_whenIdIncorrect() {
+        assertThatThrownBy(() -> userService.getById(user.getId())).isInstanceOf(UserNotFoundException.class);
     }
 }
