@@ -29,8 +29,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -133,5 +133,19 @@ public class UserServiceTest {
         assertThat(actualResponse.getContent()).isEqualTo(expectedResponse.getContent());
         assertThat(actualResponse.getPageable()).isEqualTo(expectedResponse.getPageable());
         assertThat(actualResponse.getTotalElements()).isEqualTo(expectedResponse.getTotalElements());
+    }
+
+    @Test
+    void delete_shouldDeleteUser_ifIdCorrect() {
+        when(userRepository.existsById(anyString())).thenReturn(true);
+
+        userService.delete(user.getId());
+
+        verify(userService).delete(eq(user.getId()));
+    }
+
+    @Test
+    void delete_shouldThrow_ifIdIncorrect() {
+        assertThatThrownBy(() -> userService.delete(user.getId())).isInstanceOf(UserNotFoundException.class)
     }
 }
