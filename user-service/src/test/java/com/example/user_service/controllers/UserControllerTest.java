@@ -16,16 +16,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
@@ -128,6 +131,46 @@ public class UserControllerTest {
 
         mockMvc.perform(get("/api/v1/users/{id}", userDto.getId()))
                 .andExpect(status().isOk());
+
+    }
+
+    @Test
+    void getAll_shouldReturnPageOfUsers() throws Exception {
+        Page<UserDto> pageOfUsers = new PageImpl<>(List.of(userDto));
+        Page<UserResponseDto> pageOfResponses = new PageImpl<>(List.of(userResponseDto));
+
+        when(userMapper.toResponseDto(any(UserDto.class))).thenReturn(userResponseDto);
+        when(userService.getAll(any(Pageable.class))).thenReturn(pageOfUsers);
+
+        MvcResult result = mockMvc.perform(get("/api/v1/users"))
+                .andExpect(jsonPath("$.content[0].id").value("uuid"))
+                .andExpect(jsonPath("$.pageable.pageNumber").value(0))
+                .andExpect(jsonPath("$.pageable.pageSize").value(1))
+                .andReturn();
+    }
+
+    @Test
+    void getAll_shouldReturn200Status_ifThereAtLeastOneUser() throws Exception {
+        Page<UserDto> pageOfUsers = new PageImpl<>(List.of(userDto));
+        Page<UserResponseDto> pageOfResponses = new PageImpl<>(List.of(userResponseDto));
+
+        when(userMapper.toResponseDto(any(UserDto.class))).thenReturn(userResponseDto);
+        when(userService.getAll(any(Pageable.class))).thenReturn(pageOfUsers);
+
+        mockMvc.perform(get("/api/v1/users"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAll_shouldReturn204Status_ifThereNoUsers() throws Exception{
+        Page<UserDto> pageOfUsers = new PageImpl<>(Collections.emptyList());
+        Page<UserResponseDto> pageOfResponses = new PageImpl<>(List.of(userResponseDto));
+
+        when(userMapper.toResponseDto(any(UserDto.class))).thenReturn(userResponseDto);
+        when(userService.getAll(any(Pageable.class))).thenReturn(pageOfUsers);
+
+        mockMvc.perform(get("/api/v1/users"))
+                .andExpect(status().isNoContent());
     }
 
     @Test
