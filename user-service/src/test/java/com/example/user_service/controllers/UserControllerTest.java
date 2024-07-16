@@ -111,15 +111,23 @@ public class UserControllerTest {
     @Test
     void getById_shouldReturnUserData_whenIdIsCorrect() throws Exception {
         when(userMapper.toResponseDto(any(UserDto.class))).thenReturn(userResponseDto);
-        when(userService.getUserById(anyString())).thenReturn(userDto);
+        when(userService .getById(anyString())).thenReturn(userDto);
 
         MvcResult result = mockMvc.perform(get("/api/v1/users//{id}", userDto.getId()))
                 .andReturn();
 
-        String jsonString = result.getRequest().getContentAsString();
+        String jsonString = result.getResponse().getContentAsString();
         UserResponseDto actualResponse = objectMapper.readValue(jsonString, UserResponseDto.class);
 
         assertThat(actualResponse).isEqualTo(userResponseDto);
     }
 
+    @Test
+    void getById_shouldReturn200Status_whenIdIsCorrect() throws Exception {
+        when(userMapper.toResponseDto(any(UserDto.class))).thenReturn(userResponseDto);
+        when(userService.getById(anyString())).thenReturn(userDto);
+
+        mockMvc.perform(get("/api/v1/users/{id}", userDto.getId()))
+                .andExpect(status().isOk());
+    }
 }
