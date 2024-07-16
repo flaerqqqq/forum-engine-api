@@ -8,4 +8,6 @@ public interface UserService {
 
     UserDto getById(String id);
 
+    void delete(String id);
+
 }

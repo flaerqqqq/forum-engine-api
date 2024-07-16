@@ -30,4 +30,10 @@ public class UserController {
         UserDto user = userService.getById(id);
         return new ResponseEntity<>(userMapper.toResponseDto(user), HttpStatus.OK);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

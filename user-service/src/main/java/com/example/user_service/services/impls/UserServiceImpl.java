@@ -41,4 +41,9 @@ public class UserServiceImpl implements UserService {
     public UserDto getById(String id) {
         return null;
     }
+
+    @Override
+    public void delete(String id) {
+
+    }
 }
