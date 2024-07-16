@@ -16,9 +16,15 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -102,10 +108,30 @@ public class UserServiceTest {
         when(userRepository.existsById(anyString())).thenReturn(true);
         when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
         when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+
+        UserDto actualResponse = userService.getById(user.getId());
+
+        assertThat(actualResponse).isEqualTo(userDto);
     }
 
     @Test
     void getById_shouldThrow_whenIdIncorrect() {
         assertThatThrownBy(() -> userService.getById(user.getId())).isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void getAll_shouldReturnPageOfUsers() {
+        Pageable pageable = PageRequest.of(1,1);
+        Page<User> pageOfUsers = new PageImpl<>(List.of(user));
+        Page<UserDto> expectedResponse = new PageImpl<>(List.of(userDto));
+
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(pageOfUsers);
+        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+
+        Page<UserDto> actualResponse = userService.getAll(pageable);
+
+        assertThat(actualResponse.getContent()).isEqualTo(expectedResponse.getContent());
+        assertThat(actualResponse.getPageable()).isEqualTo(expectedResponse.getPageable());
+        assertThat(actualResponse.getTotalElements()).isEqualTo(expectedResponse.getTotalElements());
     }
 }
