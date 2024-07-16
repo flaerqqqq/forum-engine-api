@@ -14,15 +14,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
@@ -60,6 +64,7 @@ public class UserControllerTest {
                 .build();
 
         userDto = UserDto.builder()
+                .id("uuid")
                 .username("test")
                 .email("test@example.com")
                 .password("Passss123!")
@@ -101,6 +106,20 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userCreateRequestDto))
         ).andExpect(status().isCreated());
+    }
+
+    @Test
+    void getById_shouldReturnUserData_whenIdIsCorrect() throws Exception {
+        when(userMapper.toResponseDto(any(UserDto.class))).thenReturn(userResponseDto);
+        when(userService.getUserById(anyString())).thenReturn(userDto);
+
+        MvcResult result = mockMvc.perform(get("/api/v1/users//{id}", userDto.getId()))
+                .andReturn();
+
+        String jsonString = result.getRequest().getContentAsString();
+        UserResponseDto actualResponse = objectMapper.readValue(jsonString, UserResponseDto.class);
+
+        assertThat(actualResponse).isEqualTo(userResponseDto);
     }
 
 }
