@@ -36,4 +36,9 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toDto(savedUser);
     }
+
+    @Override
+    public UserDto getById(String id) {
+        return null;
+    }
 }
