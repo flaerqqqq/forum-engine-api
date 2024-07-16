@@ -132,8 +132,6 @@ public class UserControllerTest {
 
     @Test
     void delete_shouldReturn204status_whenUserDeleted() throws Exception {
-        when(userService.delete(anyString())).thenReturn(true);
-
         mockMvc.perform(delete("/api/v1/users/{id}", userDto.getId()))
                 .andExpect(status().isNoContent());
     }
