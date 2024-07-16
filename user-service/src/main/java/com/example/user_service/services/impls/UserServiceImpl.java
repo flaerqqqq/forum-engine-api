@@ -2,6 +2,7 @@ package com.example.user_service.services.impls;
 
 import com.example.user_service.dto.UserDto;
 import com.example.user_service.exceptions.EmailAlreadyInUseException;
+import com.example.user_service.exceptions.UserNotFoundException;
 import com.example.user_service.exceptions.UsernameAlreadyInUseException;
 import com.example.user_service.mappers.UserMapper;
 import com.example.user_service.model.User;
@@ -42,7 +43,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(String id) {
-        return null;
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User with id is not found: %s".formatted(id));
+        }
+
+        User user = userRepository.findById(id).get();
+
+        return userMapper.toDto(user);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.user_service.services;
 
 import com.example.user_service.dto.UserDto;
 import com.example.user_service.exceptions.EmailAlreadyInUseException;
+import com.example.user_service.exceptions.UserNotFoundException;
 import com.example.user_service.exceptions.UsernameAlreadyInUseException;
 import com.example.user_service.mappers.UserMapper;
 import com.example.user_service.model.User;
