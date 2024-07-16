@@ -1,5 +1,6 @@
 package com.example.user_service.services.impls;
 
+import com.example.user_service.UserServiceApplication;
 import com.example.user_service.dto.UserDto;
 import com.example.user_service.exceptions.EmailAlreadyInUseException;
 import com.example.user_service.exceptions.UserNotFoundException;
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserServiceApplication userServiceApplication;
 
     @Override
     public UserDto create(UserDto userDto) {
@@ -60,6 +62,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(String id) {
-
+        if(!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User with id is not found: %s".formatted(id));
+        }
+        userRepository.deleteById(id);
     }
 }

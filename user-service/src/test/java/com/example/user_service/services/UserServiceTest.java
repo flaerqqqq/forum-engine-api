@@ -141,11 +141,11 @@ public class UserServiceTest {
 
         userService.delete(user.getId());
 
-        verify(userService).delete(eq(user.getId()));
+        verify(userRepository).deleteById(eq(userDto.getId()));
     }
 
     @Test
     void delete_shouldThrow_ifIdIncorrect() {
-        assertThatThrownBy(() -> userService.delete(user.getId())).isInstanceOf(UserNotFoundException.class)
+        assertThatThrownBy(() -> userService.delete(user.getId())).isInstanceOf(UserNotFoundException.class);
     }
 }
