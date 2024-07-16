@@ -144,8 +144,8 @@ public class UserControllerTest {
 
         MvcResult result = mockMvc.perform(get("/api/v1/users"))
                 .andExpect(jsonPath("$.content[0].id").value("uuid"))
-                .andExpect(jsonPath("$.pageable.pageNumber").value(0))
-                .andExpect(jsonPath("$.pageable.pageSize").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(1))
                 .andReturn();
     }
 
