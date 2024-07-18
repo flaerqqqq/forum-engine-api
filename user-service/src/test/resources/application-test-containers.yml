@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: user-service
+  config:
+    import: optional:configserver:http://localhost:8888
+  cloud:
+    config:
+      username: ${SPRING_SECURITY_USER_NAME:test}
+      password: ${SPRING_SECURITY_USER_PASSWORD:test}

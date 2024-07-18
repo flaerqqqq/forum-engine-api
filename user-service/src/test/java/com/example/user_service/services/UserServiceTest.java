@@ -1,0 +1,151 @@
+package com.example.user_service.services;
+
+import com.example.user_service.dto.UserDto;
+import com.example.user_service.exceptions.EmailAlreadyInUseException;
+import com.example.user_service.exceptions.UserNotFoundException;
+import com.example.user_service.exceptions.UsernameAlreadyInUseException;
+import com.example.user_service.mappers.UserMapper;
+import com.example.user_service.model.User;
+import com.example.user_service.repositories.UserRepository;
+import com.example.user_service.services.impls.UserServiceImpl;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@SpringBootTest
+public class UserServiceTest {
+
+    @Mock
+    UserMapper userMapper;
+
+    @Mock
+    PasswordEncoder passwordEncoder;
+
+    @Mock
+    UserRepository userRepository;
+
+    @InjectMocks
+    private UserServiceImpl userService;
+
+    private UserDto userDto;
+    private User user;
+
+    @BeforeEach
+    public void setup() {
+        userDto = UserDto.builder()
+                .id("uuid")
+                .username("test")
+                .email("test@example.com")
+                .password("Passss123!")
+                .createdAt(LocalDateTime.now())
+                .lastModifiedAt(LocalDateTime.now())
+                .build();
+        user = User.builder()
+                .id("uuid")
+                .username("test")
+                .email("test@example.com")
+                .password("Passss123!")
+                .createdAt(LocalDateTime.now())
+                .lastModifiedAt(LocalDateTime.now())
+                .build();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        userDto = null;
+        user = null;
+    }
+
+    @Test
+    void create_shouldCreateUser_whenUsernameAndEmailNotInUse() {
+        when(userMapper.fromDto(any(UserDto.class))).thenReturn(user);
+        when(passwordEncoder.encode(anyString())).thenReturn("Passss123!");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+
+        UserDto actualResponse = userService.create(userDto);
+
+        assertThat(actualResponse).isEqualTo(userDto);
+    }
+
+    @Test
+    void create_shouldThrow_whenUsernameInUse() {
+        when(userRepository.existsByUsername(anyString())).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.create(userDto)).isInstanceOf(UsernameAlreadyInUseException.class);
+    }
+
+    @Test
+    void create_shouldThrow_whenEmailInUse() {
+        when(userRepository.existsByEmail(anyString())).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.create(userDto)).isInstanceOf(EmailAlreadyInUseException.class);
+    }
+
+    @Test
+    void getById_shouldReturn_ifIdCorrect() {
+        when(userRepository.existsById(anyString())).thenReturn(true);
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
+        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+
+        UserDto actualResponse = userService.getById(user.getId());
+
+        assertThat(actualResponse).isEqualTo(userDto);
+    }
+
+    @Test
+    void getById_shouldThrow_whenIdIncorrect() {
+        assertThatThrownBy(() -> userService.getById(user.getId())).isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void getAll_shouldReturnPageOfUsers() {
+        Pageable pageable = PageRequest.of(1,1);
+        Page<User> pageOfUsers = new PageImpl<>(List.of(user));
+        Page<UserDto> expectedResponse = new PageImpl<>(List.of(userDto));
+
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(pageOfUsers);
+        when(userMapper.toDto(any(User.class))).thenReturn(userDto);
+
+        Page<UserDto> actualResponse = userService.getAll(pageable);
+
+        assertThat(actualResponse.getContent()).isEqualTo(expectedResponse.getContent());
+        assertThat(actualResponse.getPageable()).isEqualTo(expectedResponse.getPageable());
+        assertThat(actualResponse.getTotalElements()).isEqualTo(expectedResponse.getTotalElements());
+    }
+
+    @Test
+    void delete_shouldDeleteUser_ifIdCorrect() {
+        when(userRepository.existsById(anyString())).thenReturn(true);
+
+        userService.delete(user.getId());
+
+        verify(userRepository).deleteById(eq(userDto.getId()));
+    }
+
+    @Test
+    void delete_shouldThrow_ifIdIncorrect() {
+        assertThatThrownBy(() -> userService.delete(user.getId())).isInstanceOf(UserNotFoundException.class);
+    }
+}
