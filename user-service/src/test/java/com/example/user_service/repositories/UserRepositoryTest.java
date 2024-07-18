@@ -23,35 +23,50 @@ public class UserRepositoryTest extends MongoDBTestContainerInitializer {
 
 
     @BeforeEach
-    void clear() {
+    void setUp() {
+        User user1 = User.builder()
+                .username("test1")
+                .email("test1@example.com")
+                .password("password1234")
+                .build();
+        User user2 = User.builder()
+                .username("test2")
+                .email("test2@example.com")
+                .password("password1234")
+                .build();
+        userRepository.saveAll(List.of(user1, user2));
+    }
+
+    @AfterEach
+    void cleanUp() {
         userRepository.deleteAll();
     }
 
     @Test
-    @Order(1)
-    void init () {
-        User user = User.builder()
-                .username("test")
-                .email("example@gmail.com")
-                .password("123456")
-                .build();
+    void existsByEmail_shouldReturnTrue_ifUserActuallyExists() {
+        boolean result = userRepository.existsByEmail("test1@example.com");
 
-        userRepository.save(user);
-
-        List<User> listOfUsers = userRepository.findAll();
-
-        assertThat(listOfUsers.size()).isEqualTo(2);
+        assertThat(result).isTrue();
     }
 
     @Test
-    @Order(2)
-    void test() {
-        List<User> listOfUsers = userRepository.findAll();
+    void existsByEmail_shouldReturnFalse_ifUserDoesNotExist() {
+        boolean result = userRepository.existsByEmail("someNotUsedEmail@example.com");
 
-        assertThat(listOfUsers.size()).isEqualTo(1);
-
+        assertThat(result).isFalse();
     }
 
+    @Test
+    void existsByUsername_shouldReturnTrue_ifUserActuallyExists() {
+        boolean result = userRepository.existsByUsername("test1");
 
+        assertThat(result).isTrue();
+    }
 
+    @Test
+    void existsByUsername_shouldReturnFalse_ifUserDoesNotExist() {
+        boolean result = userRepository.existsByUsername("someNotUsedUsername");
+
+        assertThat(result).isFalse();
+    }
 }
