@@ -1,13 +1,13 @@
 version: "3.8"
 
 services:
-  postgres:
+  postgres-auth:
     image: postgres
-    container_name: pg-db
+    container_name: pg-db-auth
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_MULTIPLE_DATABASES: auth
+      POSTGRES_DB: auth
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 452389
       PGDATA: /var/lib/postgresql/data
@@ -16,9 +16,14 @@ services:
     networks:
       - forum-net
     restart: unless-stopped
-  mongo:
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+
+  mongo-user:
     image: mongo
-    container_name: mongo-db
+    container_name: mongo-db-user
     ports:
       - "27017:27017"
     environment:
@@ -28,6 +33,10 @@ services:
       - mongo-data:/data
     networks:
       - forum-net
+    deploy:
+      resources:
+        limits:
+          memory: 500M
 
 networks:
   forum-net:
