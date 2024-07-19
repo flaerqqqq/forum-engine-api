@@ -1,5 +1,8 @@
 package com.example.authservice.controllers;
 
+import com.example.authservice.dtos.UserRegisterRequestDto;
+import com.example.authservice.dtos.UserRegisterResponseDto;
+import com.example.authservice.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,18 +12,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 public class AuthControllerTest {
 
     @Autowired
@@ -41,7 +46,7 @@ public class AuthControllerTest {
         registerRequest = UserRegisterRequestDto.builder()
                 .username("username1")
                 .email("test1@example.com")
-                .password("Password1234")
+                .password("Password1234!")
                 .build();
         invalidRegisterRequest = UserRegisterRequestDto.builder()
                 .username("u")
@@ -52,7 +57,6 @@ public class AuthControllerTest {
                 .id("uuid")
                 .username("username1")
                 .email("test1@example.com")
-                .password("Password1234")
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -67,14 +71,16 @@ public class AuthControllerTest {
     void register_shouldReturnResponse_ifDataIsCorrect() throws Exception {
         when(authService.register(any(UserRegisterRequestDto.class))).thenReturn(registerResponse);
 
-        mockMvc.perform(post("/api/v1/auth/register")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(registerRequest))
-                )
-                .andExpect(jsonPath("$.id").value(registerResponse.getId()))
-                .andExpect(jsonPath("$.username").value(registerResponse.getUsername()))
-                .andExpect(jsonPath("$.email").value(registerResponse.getEmail()))
-                .andExpect(jsonPath("$.createdAt").value(registerResponse.getCreatedAt));
+                        .content(objectMapper.writeValueAsString(registerRequest))
+                ).andReturn();
+
+        String jsonString = result.getResponse().getContentAsString();
+        UserRegisterResponseDto actualResponse = objectMapper.readValue(jsonString, UserRegisterResponseDto.class);
+
+        assertThat(actualResponse).isEqualTo(registerResponse);
+
     }
 
     @Test
