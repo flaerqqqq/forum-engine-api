@@ -1,7 +1,13 @@
 package com.example.authservice.services;
 
+import com.example.authservice.clients.UserClient;
+import com.example.authservice.clients.dtos.UserServiceCreateRequestDto;
+import com.example.authservice.clients.dtos.UserServiceResponseDto;
 import com.example.authservice.dtos.UserRegisterRequestDto;
 import com.example.authservice.dtos.UserRegisterResponseDto;
+import com.example.authservice.entities.Role;
+import com.example.authservice.entities.UserRole;
+import com.example.authservice.repositories.UserRoleRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +29,7 @@ public class AuthServiceTest {
     UserRoleRepository userRoleRepository;
 
     @MockBean
-    UserServiceClient userServiceClient;
+    UserClient userClient;
 
     @Autowired
     AuthService authService;
@@ -32,8 +38,8 @@ public class AuthServiceTest {
     private String id = "uuid";
     private Long roleId = 1L;
 
-    private UserCreateRequestDto userCreateRequest;
-    private UserCreateResponseDto userCreateResponse;
+    private UserServiceCreateRequestDto userCreateRequest;
+    private UserServiceResponseDto userCreateResponse;
     private UserRole userRole;
     private UserRegisterRequestDto registerRequest;
     private UserRegisterResponseDto registerResponse;
@@ -41,12 +47,12 @@ public class AuthServiceTest {
     @BeforeEach
     void setUp() {
 
-        userCreateRequest = UserCreateRequestDto.builder()
+        userCreateRequest = UserServiceCreateRequestDto.builder()
                 .username("username1")
                 .email("test1@example.com")
                 .password("Password1234!")
                 .build();
-        userCreateResponse = UserCreateResponseDto.builder()
+        userCreateResponse = UserServiceResponseDto.builder()
                 .id(id)
                 .username("username1")
                 .email("test1@example.com")
@@ -54,7 +60,7 @@ public class AuthServiceTest {
                 .build();
         userRole = UserRole.builder()
                 .userId(id)
-                .roleId(roleId)
+                .role(new Role())
                 .build();
         registerRequest = UserRegisterRequestDto.builder()
                 .username("username1")
