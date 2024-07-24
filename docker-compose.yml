@@ -22,21 +22,18 @@ services:
           memory: 500M
 
   mongo-user:
-    image: mongo
+    image: mongo:latest
     container_name: mongo-db-user
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: vitaliy
-      MONGO_INITDB_ROOT_PASSWORD: 452389
+      MONGO_INITDB_DATABASE: user
+      MONGO_INITDB_ROOT_USERNAME: 'vitaliy'
+      MONGO_INITDB_ROOT_PASSWORD: '452389'
     volumes:
       - mongo-data:/data
     networks:
       - forum-net
-    deploy:
-      resources:
-        limits:
-          memory: 500M
 
 networks:
   forum-net:
