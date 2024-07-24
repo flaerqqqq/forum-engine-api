@@ -11,7 +11,7 @@ public class RouteConfig {
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("user-service", r -> r.path("/api/v/auth/**")
+                .route("user-service", r -> r.path("/api/v1/users/**")
                         .uri("lb://user-service"))
                 .build();
     }
