@@ -9,13 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(
-        name = "user-service",
-        url = "${application.config.user-url}"
-)
+@FeignClient(name = "user-service", url = "${application.config.user-url}")
 public interface UserClient {
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     ResponseEntity<UserServiceResponseDto> getById(@PathVariable String id);
 
     @PostMapping
