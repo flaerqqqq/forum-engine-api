@@ -7,7 +7,10 @@ import com.example.authservice.dtos.UserRegisterRequestDto;
 import com.example.authservice.dtos.UserRegisterResponseDto;
 import com.example.authservice.entities.Role;
 import com.example.authservice.entities.UserRole;
+import com.example.authservice.exceptions.RoleNotFoundException;
+import com.example.authservice.repositories.RoleRepository;
 import com.example.authservice.repositories.UserRoleRepository;
+import feign.FeignException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,15 +18,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
+import javax.management.RuntimeErrorException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class AuthServiceTest {
+
+    @MockBean
+    RoleRepository roleRepository;
 
     @MockBean
     UserRoleRepository userRoleRepository;
@@ -40,6 +54,7 @@ public class AuthServiceTest {
 
     private UserServiceCreateRequestDto userCreateRequest;
     private UserServiceResponseDto userCreateResponse;
+    private Role role;
     private UserRole userRole;
     private UserRegisterRequestDto registerRequest;
     private UserRegisterResponseDto registerResponse;
@@ -57,6 +72,10 @@ public class AuthServiceTest {
                 .username("username1")
                 .email("test1@example.com")
                 .createdAt(createdAt)
+                .build();
+        role = Role.builder()
+                .id(roleId)
+                .name(Role.RoleName.ROLE_USER)
                 .build();
         userRole = UserRole.builder()
                 .userId(id)
@@ -83,5 +102,36 @@ public class AuthServiceTest {
         registerRequest = null;
         registerResponse = null;
     }
+
+    @Test
+    void register_shouldRegister_whenUserDataIsCorrect() {
+        when(userClient.create(any(UserServiceCreateRequestDto.class)))
+                .thenReturn(new ResponseEntity<>(userCreateResponse, HttpStatus.CREATED));
+        when(roleRepository.findByName(role.getName())).thenReturn(Optional.of(role));
+
+        UserRegisterResponseDto actualResponse = authService.register(registerRequest);
+
+        assertThat(actualResponse).isEqualTo(registerResponse);
+    }
+
+    @Test
+    void register_clientShouldThrow_whenUserDataIsIncorrect() {
+        when(userClient.create(any(UserServiceCreateRequestDto.class)))
+                .thenThrow(new RuntimeException("Feign client error"));
+
+        assertThrows(RuntimeException.class, () ->
+                authService.register(registerRequest));
+    }
+
+    @Test
+    void register_shouldThrow_whenRoleIsNotFound() {
+        when(userClient.create(any(UserServiceCreateRequestDto.class)))
+                .thenReturn(new ResponseEntity<>(userCreateResponse, HttpStatus.CREATED));
+        when(roleRepository.findByName(any(Role.RoleName.class))).thenReturn(Optional.ofNullable(null));
+
+        assertThrows(RoleNotFoundException.class, () ->
+                authService.register(registerRequest));
+    }
+
 
 }
