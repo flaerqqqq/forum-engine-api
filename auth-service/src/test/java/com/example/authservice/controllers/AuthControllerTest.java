@@ -12,10 +12,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -40,6 +40,9 @@ public class AuthControllerTest {
     private UserRegisterRequestDto registerRequest;
     private UserRegisterRequestDto invalidRegisterRequest;
     private UserRegisterResponseDto registerResponse;
+    private LoginRequestDto validLoginRequest;
+    private LoginRequestDto invalidLoginRequest;
+    private LoginJwtResponseDto expectedJwtResponseDto;
 
     @BeforeEach
     void setUp() {
@@ -59,6 +62,17 @@ public class AuthControllerTest {
                 .email("test1@example.com")
                 .createdAt(LocalDateTime.now())
                 .build();
+        validLoginRequest = LoginRequestDto.builder()
+                .username("test")
+                .password("test")
+                .build();
+        invalidLoginRequest = LoginRequestDto.builder()
+                .username("tt")
+                .password("tt")
+                .build();
+        expectedJwtResponseDto = LoginJwtResponseDto.builder()
+                .token("token")
+                .builder();
     }
 
     @AfterEach
@@ -72,9 +86,9 @@ public class AuthControllerTest {
         when(authService.register(any(UserRegisterRequestDto.class))).thenReturn(registerResponse);
 
         MvcResult result = mockMvc.perform(post("/api/v1/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest))
-                ).andReturn();
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest))
+        ).andReturn();
 
         String jsonString = result.getResponse().getContentAsString();
         UserRegisterResponseDto actualResponse = objectMapper.readValue(jsonString, UserRegisterResponseDto.class);
@@ -101,5 +115,50 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsBytes(invalidRegisterRequest))
                 )
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void login_shouldReturnValidJson_ifUserLoginDataCorrect() throws UnsupportedEncodingException {
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(validLoginRequest))
+        ).andReturn();
+
+        String body = result.getResponse().getContentAsString();
+
+        LoginJwtResponseDto actualJwtResponseDto = objectMapper.readValue(body, LoginJwtResponseDto.class);
+
+        assertThat(actualJwtResponseDto).isEqualTo(expectedJwtResponseDto);
+    }
+
+    @Test
+    void login_shouldReturn200StatusCode_ifUserLoginDataCorrect() {
+        when(authService.login(any(LoginRequestDto.class))).thenReturn(expectedJwtResponseDto);
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(validLoginRequest))
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void login_shouldReturn401StatusCode_ifUsernameIncorrect() {
+        when(authService.login(any(LoginRequestDto.class))).thenThrow(() ->
+                new UserNotFoundException("ex"));
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(invalidLoginRequest))
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void login_shouldReturn401StatusCode_ifPasswordIncorrect() {
+        when(authService.login(any(LoginRequestDto.class))).thenThrow(() ->
+                new IncorrectPasswordException("ex"));
+        mockMvc.perform(post("/api/v1/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(invalidLoginRequest))
+        ).andExpect(status().isUnauthorized());
     }
 }
