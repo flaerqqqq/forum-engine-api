@@ -1,15 +1,15 @@
 package com.example.authservice.config;
 
+import com.example.authservice.clients.exceptions.UserServiceErrorDecoder;
 import feign.codec.ErrorDecoder;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class BeanConfig {
+public class FeignUserServiceConfig {
 
     @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
+    public ErrorDecoder userServiceErrorDecoder() {
+        return new UserServiceErrorDecoder();
     }
 }
