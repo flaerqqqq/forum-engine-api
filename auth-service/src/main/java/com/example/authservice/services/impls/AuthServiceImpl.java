@@ -2,7 +2,6 @@ package com.example.authservice.services.impls;
 
 import com.example.authservice.clients.UserClient;
 import com.example.authservice.clients.dtos.UserServiceCreateRequestDto;
-import com.example.authservice.clients.dtos.UserServiceResponseDto;
 import com.example.authservice.dtos.LoginJwtResponseDto;
 import com.example.authservice.dtos.LoginRequestDto;
 import com.example.authservice.dtos.UserRegisterRequestDto;
@@ -60,17 +59,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginJwtResponseDto login(LoginRequestDto request) {
-        AuthUser userResponse = authUserRepository.findByUsername(request.getUsername())
+        AuthUser authUser = authUserRepository.findByUsername(request.getUsername())
                 .orElseThrow(() ->
                         new UserNotFoundException("User with such username is not found: %s".formatted(request.getUsername())));
 
         authenticate(request);
 
-        CustomUserDetails userDetails = new CustomUserDetails(
-                request.getUsername(),
-                request.getPassword(),
-                userRoleRepository.findAllByUserId(userResponse.getId())
-        );
+        CustomUserDetails userDetails = new CustomUserDetails(authUser);
         String jwtToken = jwtService.generate(userDetails);
 
         return new LoginJwtResponseDto(jwtToken);
@@ -92,12 +87,22 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private void assignRolesToUser(String userId, Role role) {
+    private void assignRolesToUser(AuthUser authUser, Role role) {
         UserRole userRole = UserRole.builder()
-                .userId(userId)
+                .authUser(authUser)
                 .role(role)
                 .build();
 
         userRoleRepository.save(userRole);
+    }
+
+    private AuthUser createAuthUserEntity(String id,String username, String password) {
+        AuthUser authUser = AuthUser.builder()
+                .id(id)
+                .username(username)
+                .password(password)
+                .build();
+
+        return authUserRepository.save(authUser);
     }
 }
