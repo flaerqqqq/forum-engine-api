@@ -23,7 +23,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto create(UserDto userDto) {
@@ -32,9 +31,6 @@ public class UserServiceImpl implements UserService {
         } else if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new EmailAlreadyInUseException(("User with such email already exists: %s".formatted(userDto.getEmail())));
         }
-
-        String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
-        userDto.setPassword(encryptedPassword);
 
         User user = userMapper.fromDto(userDto);
         User savedUser = userRepository.save(user);
