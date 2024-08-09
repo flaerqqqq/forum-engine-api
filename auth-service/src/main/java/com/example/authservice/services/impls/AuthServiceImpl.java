@@ -2,6 +2,8 @@ package com.example.authservice.services.impls;
 
 import com.example.authservice.clients.UserClient;
 import com.example.authservice.clients.dtos.UserServiceCreateRequestDto;
+import com.example.authservice.dtos.LoginJwtResponseDto;
+import com.example.authservice.dtos.LoginRequestDto;
 import com.example.authservice.dtos.UserRegisterRequestDto;
 import com.example.authservice.dtos.UserRegisterResponseDto;
 import com.example.authservice.entities.Role;
@@ -34,6 +36,11 @@ public class AuthServiceImpl implements AuthService {
         assignRolesToUser(userCreateResponse.getId(), role);
 
         return modelMapper.map(userCreateResponse, UserRegisterResponseDto.class);
+    }
+
+    @Override
+    public LoginJwtResponseDto login(LoginRequestDto request) {
+        return null;
     }
 
     private void assignRolesToUser(String userId, Role role) {

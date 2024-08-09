@@ -1,6 +1,8 @@
 package com.example.authservice.handlers;
 
 import com.example.authservice.clients.exceptions.UserServiceException;
+import com.example.authservice.exceptions.IncorrectPasswordException;
+import com.example.authservice.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
@@ -20,5 +22,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleFeignClientExceptions(UserServiceException ex) {
         HttpStatus status = HttpStatus.valueOf(ex.getStatus());
         return new ResponseEntity<>(ex.getMessage(), status);
+    }
+
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            IncorrectPasswordException.class
+    })
+    public ResponseEntity<ErrorResponse> handlerBadCredentialsException(Exception ex) {
+        ErrorResponse errorResponse = ErrorResponse.builder(ex, HttpStatus.UNAUTHORIZED,ex.getMessage()).build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }

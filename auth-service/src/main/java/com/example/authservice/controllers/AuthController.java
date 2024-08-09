@@ -1,5 +1,7 @@
 package com.example.authservice.controllers;
 
+import com.example.authservice.dtos.LoginJwtResponseDto;
+import com.example.authservice.dtos.LoginRequestDto;
 import com.example.authservice.dtos.UserRegisterRequestDto;
 import com.example.authservice.dtos.UserRegisterResponseDto;
 import com.example.authservice.services.AuthService;
@@ -23,5 +25,11 @@ public class AuthController {
     public ResponseEntity<UserRegisterResponseDto> register(@RequestBody @Valid UserRegisterRequestDto request) {
         UserRegisterResponseDto response = authService.register(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginJwtResponseDto> login(@RequestBody LoginRequestDto request) {
+        LoginJwtResponseDto response = authService.login(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
