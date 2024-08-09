@@ -12,6 +12,7 @@ import com.example.authservice.entities.Role;
 import com.example.authservice.entities.UserRole;
 import com.example.authservice.exceptions.IncorrectPasswordException;
 import com.example.authservice.exceptions.RoleNotFoundException;
+import com.example.authservice.exceptions.UserNotFoundException;
 import com.example.authservice.repositories.RoleRepository;
 import com.example.authservice.repositories.UserRoleRepository;
 import com.example.authservice.services.impls.AuthServiceImpl;
@@ -176,9 +177,9 @@ public class AuthServiceTest {
 
     @Test
     void login_shouldThrow_ifUserWithSuchUsernameDoesNotExist() {
-        when(userClient.getById(anyString())).thenThrow(UserServiceException.class);
+        when(userClient.getById(anyString())).thenThrow(UserNotFoundException.class);
 
-        assertThrows(UserServiceException.class, () -> authService.login(loginRequest));
+        assertThrows(UserNotFoundException.class, () -> authService.login(loginRequest));
     }
 
     @Test
