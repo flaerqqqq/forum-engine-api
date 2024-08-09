@@ -3,13 +3,18 @@ package com.example.authservice.services;
 import com.example.authservice.clients.UserClient;
 import com.example.authservice.clients.dtos.UserServiceCreateRequestDto;
 import com.example.authservice.clients.dtos.UserServiceResponseDto;
+import com.example.authservice.clients.exceptions.UserServiceException;
+import com.example.authservice.dtos.LoginJwtResponseDto;
+import com.example.authservice.dtos.LoginRequestDto;
 import com.example.authservice.dtos.UserRegisterRequestDto;
 import com.example.authservice.dtos.UserRegisterResponseDto;
 import com.example.authservice.entities.Role;
 import com.example.authservice.entities.UserRole;
+import com.example.authservice.exceptions.IncorrectPasswordException;
 import com.example.authservice.exceptions.RoleNotFoundException;
 import com.example.authservice.repositories.RoleRepository;
 import com.example.authservice.repositories.UserRoleRepository;
+import com.example.authservice.services.impls.AuthServiceImpl;
 import feign.FeignException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +25,10 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.management.RuntimeErrorException;
 import java.time.LocalDateTime;
@@ -45,12 +54,19 @@ public class AuthServiceTest {
     @MockBean
     UserClient userClient;
 
+    @MockBean
+    AuthenticationManager authManager;
+
+    @MockBean
+    JwtService jwtService;
+
     @Autowired
     AuthService authService;
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private String id = "uuid";
     private Long roleId = 1L;
+    private String jwtToken = "jwtToken";
 
     private UserServiceCreateRequestDto userCreateRequest;
     private UserServiceResponseDto userCreateResponse;
@@ -58,6 +74,8 @@ public class AuthServiceTest {
     private UserRole userRole;
     private UserRegisterRequestDto registerRequest;
     private UserRegisterResponseDto registerResponse;
+    private LoginRequestDto loginRequest;
+    private LoginJwtResponseDto loginResponse;
 
     @BeforeEach
     void setUp() {
@@ -91,6 +109,13 @@ public class AuthServiceTest {
                 .username("username1")
                 .email("test1@example.com")
                 .createdAt(createdAt)
+                .build();
+        loginRequest = LoginRequestDto.builder()
+                .username("username")
+                .password("pass")
+                .build();
+        loginResponse = LoginJwtResponseDto.builder()
+                .token(jwtToken)
                 .build();
     }
 
@@ -133,5 +158,35 @@ public class AuthServiceTest {
                 authService.register(registerRequest));
     }
 
+    @Test
+    void login_shouldLogin_ifLoginDataCorrect() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("username", "pass");
+        token.setAuthenticated(true);
 
+        when(userClient.getById(anyString())).thenReturn(ResponseEntity.ok().body(userCreateResponse));
+        when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(token);
+        when(jwtService.generate(any(UserDetails.class))).thenReturn(jwtToken);
+
+        LoginJwtResponseDto actualResponse = authService.login(loginRequest);
+
+        assertThat(actualResponse).isEqualTo(loginResponse);
+        assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isTrue();
+    }
+
+    @Test
+    void login_shouldThrow_ifUserWithSuchUsernameDoesNotExist() {
+        when(userClient.getById(anyString())).thenThrow(UserServiceException.class);
+
+        assertThrows(UserServiceException.class, () -> authService.login(loginRequest));
+    }
+
+    @Test
+    void login_shouldThrow_ifPasswordIncorrect() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("username", "pass");
+        when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(token);
+
+        assertThrows(IncorrectPasswordException.class, () -> authService.login(loginRequest));
+    }
 }
