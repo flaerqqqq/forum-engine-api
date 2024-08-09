@@ -1,8 +1,13 @@
 package com.example.authservice.controllers;
 
+import com.example.authservice.dtos.LoginJwtResponseDto;
+import com.example.authservice.dtos.LoginRequestDto;
 import com.example.authservice.dtos.UserRegisterRequestDto;
 import com.example.authservice.dtos.UserRegisterResponseDto;
+import com.example.authservice.exceptions.IncorrectPasswordException;
+import com.example.authservice.exceptions.UserNotFoundException;
 import com.example.authservice.services.AuthService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,7 +77,7 @@ public class AuthControllerTest {
                 .build();
         expectedJwtResponseDto = LoginJwtResponseDto.builder()
                 .token("token")
-                .builder();
+                .build();
     }
 
     @AfterEach
@@ -118,7 +123,9 @@ public class AuthControllerTest {
     }
 
     @Test
-    void login_shouldReturnValidJson_ifUserLoginDataCorrect() throws UnsupportedEncodingException {
+    void login_shouldReturnValidJson_ifUserLoginDataCorrect() throws Exception {
+        when(authService.login(any(LoginRequestDto.class))).thenReturn(expectedJwtResponseDto);
+
         MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(validLoginRequest))
@@ -132,7 +139,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void login_shouldReturn200StatusCode_ifUserLoginDataCorrect() {
+    void login_shouldReturn200StatusCode_ifUserLoginDataCorrect() throws Exception {
         when(authService.login(any(LoginRequestDto.class))).thenReturn(expectedJwtResponseDto);
 
         mockMvc.perform(post("/api/v1/auth/login")
@@ -142,9 +149,8 @@ public class AuthControllerTest {
     }
 
     @Test
-    void login_shouldReturn401StatusCode_ifUsernameIncorrect() {
-        when(authService.login(any(LoginRequestDto.class))).thenThrow(() ->
-                new UserNotFoundException("ex"));
+    void login_shouldReturn401StatusCode_ifUsernameIncorrect() throws Exception {
+        when(authService.login(any(LoginRequestDto.class))).thenThrow(UserNotFoundException.class);
 
         mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -153,9 +159,8 @@ public class AuthControllerTest {
     }
 
     @Test
-    void login_shouldReturn401StatusCode_ifPasswordIncorrect() {
-        when(authService.login(any(LoginRequestDto.class))).thenThrow(() ->
-                new IncorrectPasswordException("ex"));
+    void login_shouldReturn401StatusCode_ifPasswordIncorrect() throws Exception {
+        when(authService.login(any(LoginRequestDto.class))).thenThrow(IncorrectPasswordException.class);
         mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(invalidLoginRequest))
