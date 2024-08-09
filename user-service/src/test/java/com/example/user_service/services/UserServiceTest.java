@@ -40,9 +40,6 @@ public class UserServiceTest {
     UserMapper userMapper;
 
     @Mock
-    PasswordEncoder passwordEncoder;
-
-    @Mock
     UserRepository userRepository;
 
     @InjectMocks
@@ -80,7 +77,6 @@ public class UserServiceTest {
     @Test
     void create_shouldCreateUser_whenUsernameAndEmailNotInUse() {
         when(userMapper.fromDto(any(UserDto.class))).thenReturn(user);
-        when(passwordEncoder.encode(anyString())).thenReturn("Passss123!");
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(userMapper.toDto(any(User.class))).thenReturn(userDto);
 
