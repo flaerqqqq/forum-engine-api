@@ -16,10 +16,13 @@ public class UserRole {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private String userId;
+    @ManyToOne
+    @JoinTable(name = "user_id")
+    private AuthUser authUser;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+
 }
