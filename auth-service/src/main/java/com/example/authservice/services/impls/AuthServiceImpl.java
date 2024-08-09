@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserRegisterResponseDto register(UserRegisterRequestDto request) {
         String hashedPassword = passwordEncoder.encode(request.getPassword());
-        request.setUsername(hashedPassword);
+        request.setPassword(hashedPassword);
         var userCreateRequest = modelMapper.map(request, UserServiceCreateRequestDto.class);
         var userCreateResponse = userClient.create(userCreateRequest).getBody();
 
