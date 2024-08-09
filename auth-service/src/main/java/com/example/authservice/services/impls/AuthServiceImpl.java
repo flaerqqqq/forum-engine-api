@@ -27,14 +27,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final UserClient userClient;
     private final ModelMapper modelMapper;
-    private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
