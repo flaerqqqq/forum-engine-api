@@ -15,7 +15,7 @@ import com.example.authservice.exceptions.RoleNotFoundException;
 import com.example.authservice.exceptions.UserNotFoundException;
 import com.example.authservice.repositories.AuthUserRepository;
 import com.example.authservice.repositories.RoleRepository;
-import com.example.authservice.repositories.UserRoleRepository;
+import com.example.authservice.repositories.UserRoleRepositoryTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ public class AuthServiceTest {
     RoleRepository roleRepository;
 
     @MockBean
-    UserRoleRepository userRoleRepository;
+    UserRoleRepositoryTest userRoleRepository;
 
     @MockBean
     UserClient userClient;
