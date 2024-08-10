@@ -21,7 +21,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleName name;
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
     private List<UserRole> userRoles;
 
     public enum RoleName {

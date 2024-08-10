@@ -1,8 +1,7 @@
 package com.example.authservice.services.impls;
 
 import com.example.authservice.services.JwtService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -66,6 +65,16 @@ public class JwtServiceImpl implements JwtService {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public boolean isValid(String token) {
+        try {
+            Claims claims = extractClaims(token);
+            return claims.getExpiration().after(new Date());
+        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException
+                 | IllegalArgumentException | SignatureException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

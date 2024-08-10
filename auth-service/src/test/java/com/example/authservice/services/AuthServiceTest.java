@@ -15,6 +15,7 @@ import com.example.authservice.exceptions.RoleNotFoundException;
 import com.example.authservice.exceptions.UserNotFoundException;
 import com.example.authservice.repositories.AuthUserRepository;
 import com.example.authservice.repositories.RoleRepository;
+import com.example.authservice.repositories.UserRoleRepository;
 import com.example.authservice.repositories.UserRoleRepositoryTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,7 @@ public class AuthServiceTest {
     RoleRepository roleRepository;
 
     @MockBean
-    UserRoleRepositoryTest userRoleRepository;
+    UserRoleRepository userRoleRepository;
 
     @MockBean
     UserClient userClient;
@@ -87,42 +88,50 @@ public class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
+        role = Role.builder()
+                .id(roleId)
+                .name(Role.RoleName.ROLE_USER)
+                .build();
+
+        authUser = AuthUser.builder()
+                .username("username")
+                .password(password)
+                .build();
+
+        userRole = UserRole.builder()
+                .authUser(authUser)
+                .role(role)
+                .build();
+
+        authUser.setUserRoles(Collections.singletonList(userRole));
+
         userCreateResponse = UserServiceResponseDto.builder()
                 .id(id)
                 .username("username1")
                 .email("test1@example.com")
                 .createdAt(createdAt)
                 .build();
-        role = Role.builder()
-                .id(roleId)
-                .name(Role.RoleName.ROLE_USER)
-                .build();
-        userRole = UserRole.builder()
-                .authUser(authUser)
-                .role(new Role())
-                .build();
+
         registerRequest = UserRegisterRequestDto.builder()
                 .username("username1")
                 .email("test1@example.com")
                 .password(password)
                 .build();
+
         registerResponse = UserRegisterResponseDto.builder()
                 .id(id)
                 .username("username1")
                 .email("test1@example.com")
                 .createdAt(createdAt)
                 .build();
+
         loginRequest = LoginRequestDto.builder()
                 .username("username")
                 .password("pass")
                 .build();
+
         loginResponse = LoginJwtResponseDto.builder()
                 .token(jwtToken)
-                .build();
-        authUser = AuthUser.builder()
-                .username("username")
-                .password(password)
-                .userRoles(Collections.singletonList(userRole))
                 .build();
     }
 
