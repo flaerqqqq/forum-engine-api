@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -27,10 +29,10 @@ public class JwtUtils {
     }
 
     public List<GrantedAuthority> extractRoles(String token) {
-        return ((List<String>)extractClaims(token).get("roles"))
-                .stream()
+        return ((List<Map<String, String>>)extractClaims(token).get("roles")).get(0).values().stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+
     }
 
     private Claims extractClaims(String token) {
