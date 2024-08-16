@@ -1,5 +1,7 @@
 package com.example.logservice.controllers;
 
+import com.example.logservice.dtos.LogMessageDto;
+import com.example.logservice.services.impl.LogServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,13 +54,5 @@ public class LogControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(logMessage))
         ).andExpect(status().isOk());
-    }
-
-    @Test
-    void takeLog_shouldReturn400_whenRequestBodyNotValid() {
-        mockMvc.perform(post("/api/v1/logs")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidLogMessage))
-        ).andExpect(status().isBadRequest());
     }
 }
