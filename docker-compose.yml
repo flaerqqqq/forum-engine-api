@@ -184,6 +184,9 @@ services:
       - "./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
     networks:
       - elastic
+    ports:
+      - "5044:5044"
+      - "50000:50000/tcp"
     environment:
       - xpack.monitoring.enabled=false
       - ELASTIC_USER=elastic

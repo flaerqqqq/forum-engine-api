@@ -2,12 +2,21 @@ package com.example.logservice.services.impl;
 
 import com.example.logservice.dtos.LogMessageDto;
 import com.example.logservice.services.LogService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class LogServiceImpl implements LogService {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void log(LogMessageDto logMessage) {
@@ -36,13 +45,17 @@ public class LogServiceImpl implements LogService {
     }
 
     private String formatLogMessage(LogMessageDto logMessageDto) {
-        return String.format(
-                "Timestamp: %s, ServiceId: %s, Message: %s, Context: %s, Metadata: %s",
-                logMessageDto.getTimestamp(),
-                logMessageDto.getServiceId(),
-                logMessageDto.getMessage(),
-                logMessageDto.getContext(),
-                logMessageDto.getMetadata()
-        );
+        try {
+            Map<String, Object> logData = new HashMap<>();
+            logData.put("timestamp", logMessageDto.getTimestamp());
+            logData.put("serviceId", logMessageDto.getServiceId());
+            logData.put("message", logMessageDto.getMessage());
+            logData.put("context", logMessageDto.getContext());
+            logData.put("metadata", logMessageDto.getMetadata());
+
+            return objectMapper.writeValueAsString(logData);
+        } catch (JsonProcessingException e) {
+            return "{}";
+        }
     }
 }
