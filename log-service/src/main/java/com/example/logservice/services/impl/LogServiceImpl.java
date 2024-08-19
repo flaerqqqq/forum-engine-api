@@ -3,6 +3,7 @@ package com.example.logservice.services.impl;
 import com.example.logservice.dtos.LogMessageDto;
 import com.example.logservice.services.LogService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,10 @@ public class LogServiceImpl implements LogService {
             logData.put("message", logMessageDto.getMessage());
             logData.put("context", logMessageDto.getContext());
             logData.put("metadata", logMessageDto.getMetadata());
+
+            String metadataJson = logMessageDto.getMetadata();
+            JsonNode metadataNode = objectMapper.readTree(metadataJson);
+            logData.put("metadata", metadataNode);
 
             return objectMapper.writeValueAsString(logData);
         } catch (JsonProcessingException e) {
