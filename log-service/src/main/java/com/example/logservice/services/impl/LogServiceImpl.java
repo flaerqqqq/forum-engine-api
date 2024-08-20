@@ -12,6 +12,11 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of the LogService interface, responsible for logging messages with
+ * different levels (ERROR, WARN, INFO, DEBUG, TRACE) using SLF4J.
+ * This service formats log messages into a structured JSON format.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -19,6 +24,11 @@ public class LogServiceImpl implements LogService {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * Logs a message at the specified log level from the LogMessageDto.
+     *
+     * @param logMessage the log message containing information such as timestamp, service ID, level, etc.
+     */
     @Override
     public void log(LogMessageDto logMessage) {
         String message = formatLogMessage(logMessage);
@@ -45,6 +55,13 @@ public class LogServiceImpl implements LogService {
         }
     }
 
+    /**
+     * Formats a log message into a structured JSON string. If the metadata field is a valid JSON string,
+     * it is parsed into a JSON object and included in the final log message.
+     *
+     * @param logMessageDto the log message data transfer object containing the log information.
+     * @return the formatted log message as a JSON string.
+     */
     private String formatLogMessage(LogMessageDto logMessageDto) {
         try {
             Map<String, Object> logData = new HashMap<>();
