@@ -8,7 +8,7 @@ public class WebRequestFilter extends Filter<ILoggingEvent> {
 
     @Override
     public FilterReply decide(ILoggingEvent event) {
-        if (event.getLoggerName().startsWith("org.springframework.web")) {
+        if (event.getLoggerName().startsWith("com.example.user_service")) {
             return FilterReply.ACCEPT;
         }
         return FilterReply.DENY;

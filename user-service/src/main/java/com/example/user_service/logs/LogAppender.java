@@ -53,19 +53,16 @@ public class LogAppender extends AppenderBase<ILoggingEvent> {
     private String buildMetadata() throws JsonProcessingException {
         Map<String, String> metadata = new HashMap<>();
 
-        try {
-            String ipAddress = request.getRemoteAddr();
-            metadata.put("IP", ipAddress);
-        } catch (Exception e) {
-            metadata.put("IP", "Ip address is not present");
-        }
-
         var auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (auth != null) {
-            String username = ((Principal)auth.getPrincipal()).getName();
-            User user = userRepository.findByUsername(username).get();
-            metadata.put("userId", user.getId());
+        if (auth != null && auth.isAuthenticated()) {
+            String username = auth.getName();
+            if (!username.equals("anonymousUser")) {
+                User user = userRepository.findByUsername(username).get();
+                metadata.put("userId", user.getId());
+            } else {
+                metadata.put("userId", username);
+            }
         }
 
         return objectMapper.writeValueAsString(metadata);
