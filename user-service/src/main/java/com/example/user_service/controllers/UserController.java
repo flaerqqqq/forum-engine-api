@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -31,7 +30,6 @@ public class UserController {
 
     @GetMapping("{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable String id) {
-        log.info("something");
         UserDto user = userService.getById(id);
         return new ResponseEntity<>(userMapper.toResponseDto(user), HttpStatus.OK);
     }
