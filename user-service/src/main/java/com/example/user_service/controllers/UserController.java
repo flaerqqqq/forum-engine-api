@@ -6,6 +6,7 @@ import com.example.user_service.dto.UserResponseDto;
 import com.example.user_service.mappers.UserMapper;
 import com.example.user_service.services.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -29,6 +31,7 @@ public class UserController {
 
     @GetMapping("{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable String id) {
+        log.info("something");
         UserDto user = userService.getById(id);
         return new ResponseEntity<>(userMapper.toResponseDto(user), HttpStatus.OK);
     }
