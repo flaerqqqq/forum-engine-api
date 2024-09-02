@@ -68,7 +68,7 @@ public class LogServiceImpl implements LogService {
             logData.put("timestamp", logMessageDto.getTimestamp());
             logData.put("serviceId", logMessageDto.getServiceId());
             logData.put("message", logMessageDto.getMessage());
-            logData.put("context", logMessageDto.getContext());
+            logData.put("logger", logMessageDto.getLogger());
             logData.put("metadata", logMessageDto.getMetadata());
 
             String metadataJson = logMessageDto.getMetadata();
