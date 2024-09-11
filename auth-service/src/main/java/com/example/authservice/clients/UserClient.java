@@ -1,7 +1,7 @@
 package com.example.authservice.clients;
 
-import com.example.authservice.clients.dtos.UserServiceCreateRequestDto;
-import com.example.authservice.clients.dtos.UserServiceResponseDto;
+import com.example.authservice.request.UserServiceCreateRequestDto;
+import com.example.authservice.response.UserServiceResponseDto;
 import com.example.authservice.config.FeignUserServiceConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
