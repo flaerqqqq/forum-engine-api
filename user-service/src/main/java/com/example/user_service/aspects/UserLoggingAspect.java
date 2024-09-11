@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -16,7 +17,7 @@ public class UserLoggingAspect {
     public Object logCreateMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         log.info("Creating a new user...");
         Object result = joinPoint.proceed();
-        String userId = ((UserResponseDto)result).getId();
+        String userId = ((ResponseEntity<UserResponseDto>)result).getBody().getId();
         log.info("User created successfully with id: {}.", userId);
         return result;
     }
