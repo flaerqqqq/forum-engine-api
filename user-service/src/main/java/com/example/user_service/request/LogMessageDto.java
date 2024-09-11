@@ -19,6 +19,8 @@ public class LogMessageDto {
 
     private String message;
 
+    private String logger;
+
     private String level;
 
     private String context;
