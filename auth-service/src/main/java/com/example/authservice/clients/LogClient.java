@@ -1,5 +1,6 @@
 package com.example.authservice.clients;
 
+import com.example.authservice.request.LogMessageDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 
