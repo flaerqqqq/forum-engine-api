@@ -31,7 +31,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginJwtResponseDto> login(@RequestBody LoginRequestDto request) {
-        log.info("SOMETHING HAPPENED");
         LoginJwtResponseDto response = authService.login(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
