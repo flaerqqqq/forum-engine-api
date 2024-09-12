@@ -1,8 +1,8 @@
 package com.example.authservice.services;
 
 import com.example.authservice.clients.UserClient;
-import com.example.authservice.clients.dtos.UserServiceCreateRequestDto;
-import com.example.authservice.clients.dtos.UserServiceResponseDto;
+import com.example.authservice.request.UserServiceCreateRequestDto;
+import com.example.authservice.response.UserServiceResponseDto;
 import com.example.authservice.dtos.LoginJwtResponseDto;
 import com.example.authservice.dtos.LoginRequestDto;
 import com.example.authservice.dtos.UserRegisterRequestDto;
@@ -16,7 +16,6 @@ import com.example.authservice.exceptions.UserNotFoundException;
 import com.example.authservice.repositories.AuthUserRepository;
 import com.example.authservice.repositories.RoleRepository;
 import com.example.authservice.repositories.UserRoleRepository;
-import com.example.authservice.repositories.UserRoleRepositoryTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

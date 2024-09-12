@@ -1,7 +1,7 @@
 package com.example.authservice.services.impls;
 
 import com.example.authservice.clients.UserClient;
-import com.example.authservice.clients.dtos.UserServiceCreateRequestDto;
+import com.example.authservice.request.UserServiceCreateRequestDto;
 import com.example.authservice.dtos.LoginJwtResponseDto;
 import com.example.authservice.dtos.LoginRequestDto;
 import com.example.authservice.dtos.UserRegisterRequestDto;
@@ -26,8 +26,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor

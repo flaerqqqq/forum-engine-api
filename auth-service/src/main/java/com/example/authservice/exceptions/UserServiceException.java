@@ -1,4 +1,4 @@
-package com.example.authservice.clients.exceptions;
+package com.example.authservice.exceptions;
 
 import lombok.Getter;
 import lombok.Setter;

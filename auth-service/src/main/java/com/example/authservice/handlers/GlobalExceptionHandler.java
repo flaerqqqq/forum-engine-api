@@ -1,6 +1,6 @@
 package com.example.authservice.handlers;
 
-import com.example.authservice.clients.exceptions.UserServiceException;
+import com.example.authservice.exceptions.UserServiceException;
 import com.example.authservice.exceptions.IncorrectPasswordException;
 import com.example.authservice.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;

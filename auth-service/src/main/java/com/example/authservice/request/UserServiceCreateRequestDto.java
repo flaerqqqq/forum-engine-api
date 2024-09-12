@@ -1,4 +1,4 @@
-package com.example.authservice.clients.dtos;
+package com.example.authservice.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
 package com.example.authservice.config;
 
-import com.example.authservice.clients.exceptions.UserServiceErrorDecoder;
+import com.example.authservice.exceptions.UserServiceErrorDecoder;
 import feign.codec.ErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
