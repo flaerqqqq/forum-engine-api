@@ -14,22 +14,51 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Global exception handler for managing exceptions across the application.
+ * Provides centralized exception handling for various types of exceptions.
+ *
+ * <p>
+ * - Uses {@link ControllerAdvice} to handle exceptions thrown by controllers.
+ * - Handles general exceptions, user service-specific exceptions, and validation errors.
+ * </p>
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
 
+    /**
+     * Handles all general exceptions.
+     * This method captures any exception not specifically handled elsewhere and returns a generic error response.
+     *
+     * @param ex the exception that was thrown
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with a status of {@link HttpStatus#INTERNAL_SERVER_ERROR}
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleSideExceptions(Exception ex) {
         ErrorResponse errorResponse = ErrorResponse.builder(ex, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()).build();
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
+    /**
+     * Handles exceptions specific to the user service, such as errors from Feign clients.
+     *
+     * @param ex the {@link UserServiceException} that was thrown
+     * @return a {@link ResponseEntity} containing the exception message and an appropriate HTTP status
+     */
     @ExceptionHandler(UserServiceException.class)
     public ResponseEntity<String> handleFeignClientExceptions(UserServiceException ex) {
         HttpStatus status = HttpStatus.valueOf(ex.getStatus());
         return new ResponseEntity<>(ex.getMessage(), status);
     }
 
+    /**
+     * Handles exceptions related to user credentials, such as user not found or incorrect password.
+     *
+     * @param ex the {@link Exception} (either {@link UserNotFoundException} or {@link IncorrectPasswordException}) that was thrown
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with a status of {@link HttpStatus#UNAUTHORIZED}
+     */
     @ExceptionHandler({
             UserNotFoundException.class,
             IncorrectPasswordException.class
@@ -39,6 +68,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
+    /**
+     * Handles validation errors from method arguments.
+     * This method processes validation exceptions and provides detailed information about validation errors.
+     *
+     * @param ex the {@link MethodArgumentNotValidException} that was thrown
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with a status of {@link HttpStatus#BAD_REQUEST}
+     * @throws Exception if an error occurs during error response creation
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) throws Exception {
         Map<String, String> errors = new HashMap<>();

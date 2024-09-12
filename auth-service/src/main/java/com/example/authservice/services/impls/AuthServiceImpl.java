@@ -27,6 +27,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of the {@link AuthService} interface for handling authentication and user registration.
+ * <p>
+ * This service provides methods for user registration, login, and role assignment.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -40,6 +46,16 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthUserRepository authUserRepository;
 
+
+    /**
+     * Registers a new user by creating a user entity and assigning a default role.
+     * <p>
+     * The password is encoded before being saved, and roles are assigned based on default configuration.
+     * </p>
+     *
+     * @param request the {@link UserRegisterRequestDto} containing user registration details
+     * @return a {@link UserRegisterResponseDto} with user registration details
+     */
     @Override
     public UserRegisterResponseDto register(UserRegisterRequestDto request) {
         String hashedPassword = passwordEncoder.encode(request.getPassword());
@@ -57,6 +73,17 @@ public class AuthServiceImpl implements AuthService {
         return modelMapper.map(userCreateResponse, UserRegisterResponseDto.class);
     }
 
+    /**
+     * Authenticates a user and generates a JWT token upon successful login.
+     * <p>
+     * The method retrieves user details, performs authentication, and generates a JWT token for authorized users.
+     * </p>
+     *
+     * @param request the {@link LoginRequestDto} containing user login credentials
+     * @return a {@link LoginJwtResponseDto} containing the generated JWT token
+     * @throws UserNotFoundException if the user with the specified username is not found
+     * @throws IncorrectPasswordException if the authentication fails due to incorrect password
+     */
     @Override
     public LoginJwtResponseDto login(LoginRequestDto request) {
         AuthUser authUser = authUserRepository.findByUsername(request.getUsername())
@@ -71,6 +98,16 @@ public class AuthServiceImpl implements AuthService {
         return new LoginJwtResponseDto(jwtToken);
     }
 
+    /**
+     * Authenticates the user based on the provided login credentials.
+     * <p>
+     * This method performs authentication using the {@link AuthenticationManager} and sets the authentication
+     * context in the {@link SecurityContextHolder}.
+     * </p>
+     *
+     * @param loginRequestDto the {@link LoginRequestDto} containing login credentials
+     * @throws IncorrectPasswordException if authentication fails
+     */
     private void authenticate(LoginRequestDto loginRequestDto) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 loginRequestDto.getUsername(),
@@ -87,6 +124,12 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    /**
+     * Assigns a role to a user by creating a {@link UserRole} entity and saving it.
+     *
+     * @param authUser the {@link AuthUser} entity to which the role will be assigned
+     * @param role the {@link Role} to be assigned to the user
+     */
     private void assignRolesToUser(AuthUser authUser, Role role) {
         UserRole userRole = UserRole.builder()
                 .authUser(authUser)
@@ -96,6 +139,14 @@ public class AuthServiceImpl implements AuthService {
         userRoleRepository.save(userRole);
     }
 
+    /**
+     * Creates and saves a new {@link AuthUser} entity with the provided details.
+     *
+     * @param id the ID of the user
+     * @param username the username of the user
+     * @param password the encoded password of the user
+     * @return the created {@link AuthUser} entity
+     */
     private AuthUser createAuthUserEntity(String id,String username, String password) {
         AuthUser authUser = AuthUser.builder()
                 .id(id)
