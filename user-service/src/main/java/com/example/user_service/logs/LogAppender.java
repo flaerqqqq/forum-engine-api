@@ -21,6 +21,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Custom log appender that sends log messages to a remote log service.
+ * <p>
+ * This component extends {@link AppenderBase} to handle log events from Logback and send them
+ * to a remote logging service through {@link LogClient}.
+ * </p>
+ */
 @Component
 @RequiredArgsConstructor
 public class LogAppender extends AppenderBase<ILoggingEvent> {
@@ -33,6 +40,16 @@ public class LogAppender extends AppenderBase<ILoggingEvent> {
     @Value("${spring.application.name}")
     private String serviceId;
 
+
+    /**
+     * Processes and sends a log event to the remote log service.
+     * <p>
+     * This method extracts details from the {@link ILoggingEvent}, constructs a {@link LogMessageDto},
+     * and sends it to the remote logging service using the {@link LogClient}.
+     * </p>
+     *
+     * @param iLoggingEvent the log event to process
+     */
     @Override
     protected void append(ILoggingEvent iLoggingEvent) {
         try {
@@ -50,6 +67,16 @@ public class LogAppender extends AppenderBase<ILoggingEvent> {
         }
     }
 
+    /**
+     * Builds metadata for the log message.
+     * <p>
+     * This method retrieves user information from the security context, such as the user ID, and serializes
+     * it to a JSON string. If the user is not authenticated, the metadata will contain the username or "anonymousUser".
+     * </p>
+     *
+     * @return the serialized metadata as a JSON string
+     * @throws JsonProcessingException if there is an error processing the JSON
+     */
     private String buildMetadata() throws JsonProcessingException {
         Map<String, String> metadata = new HashMap<>();
 
