@@ -39,6 +39,7 @@ public class LogAppender extends AppenderBase<ILoggingEvent> {
                     .metadata(buildMetadata())
                     .level(iLoggingEvent.getLevel().toString())
                     .context("null")
+                    .logger(iLoggingEvent.getLoggerName())
                     .build();
             logClient.log(logMessageDto);
         } catch (JsonProcessingException e) {
