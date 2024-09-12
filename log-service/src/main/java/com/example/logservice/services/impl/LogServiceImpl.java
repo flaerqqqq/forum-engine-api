@@ -14,9 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementation of the LogService interface, responsible for logging messages with
- * different levels (ERROR, WARN, INFO, DEBUG, TRACE) using SLF4J.
- * This service formats log messages into a structured JSON format.
+ * Implementation of the LogService that handles logging messages at various levels.
+ * <p>
+ * This service formats the log message and logs it at the appropriate level
+ * (ERROR, WARN, INFO, DEBUG, TRACE) using SLF4J.
+ * </p>
  */
 @Slf4j
 @Service
@@ -26,9 +28,9 @@ public class LogServiceImpl implements LogService {
     private final ObjectMapper objectMapper;
 
     /**
-     * Logs a message at the specified log level from the LogMessageDto.
+     * Processes the log message and logs it at the appropriate level based on the `level` field.
      *
-     * @param logMessage the log message containing information such as timestamp, service ID, level, etc.
+     * @param logMessage The log message to be processed and logged.
      */
     @Override
     public void log(LogMessageDto logMessage) {
@@ -57,11 +59,11 @@ public class LogServiceImpl implements LogService {
     }
 
     /**
-     * Formats a log message into a structured JSON string. If the metadata field is a valid JSON string,
-     * it is parsed into a JSON object and included in the final log message.
+     * Formats the log message into a JSON string including timestamp, serviceId, message,
+     * logger, and metadata. The metadata field is parsed from JSON.
      *
-     * @param logMessageDto the log message data transfer object containing the log information.
-     * @return the formatted log message as a JSON string.
+     * @param logMessageDto The DTO containing log information.
+     * @return A formatted JSON string for the log.
      */
     private String formatLogMessage(LogMessageDto logMessageDto) {
         try {

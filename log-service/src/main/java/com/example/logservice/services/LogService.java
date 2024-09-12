@@ -3,16 +3,15 @@ package com.example.logservice.services;
 import com.example.logservice.dtos.LogMessageDto;
 
 /**
- * Service interface for logging messages.
- * Implementations of this interface are responsible for logging messages
- * provided through a {@link LogMessageDto} object.
+ * LogService interface that defines the contract for logging messages.
+ * This service is intended to be implemented by any class that handles logging functionality.
  */
 public interface LogService {
 
     /**
-     * Logs a message with the details provided in the {@link LogMessageDto}.
+     * Logs a message at the appropriate level.
      *
-     * @param logMessage the log message containing information such as timestamp, service ID, log level, etc.
+     * @param logMessage the DTO containing log details such as level, message, and metadata.
      */
     void log(LogMessageDto logMessage);
 }
