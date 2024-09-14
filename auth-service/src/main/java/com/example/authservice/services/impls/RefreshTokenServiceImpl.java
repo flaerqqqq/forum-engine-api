@@ -12,6 +12,8 @@ import com.example.authservice.services.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * Implementation of the {@link RefreshTokenService} interface.
  * <p>
@@ -46,12 +48,19 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         AuthUser authUser = authUserRepository.findById(userId).orElseThrow(() ->
                 new UserNotFoundException("User with id is found: %s".formatted(userId)));
 
+        RefreshToken refreshToken;
         String refreshJwtToken = jwtService.generateRefreshToken(userId);
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .token(refreshJwtToken)
-                .authUser(authUser)
-                .build();
+        Optional<RefreshToken> existingToken = refreshTokenRepository.findByUserId(authUser.getId());
+        if (existingToken.isPresent()) {
+            refreshToken = existingToken.get();
+            refreshToken.setToken(refreshJwtToken);
+        } else {
+            refreshToken = RefreshToken.builder()
+                    .token(refreshJwtToken)
+                    .authUser(authUser)
+                    .build();
+        }
 
         RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 

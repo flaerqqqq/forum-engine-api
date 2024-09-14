@@ -30,7 +30,6 @@ public class WebRequestFilter extends Filter<ILoggingEvent> {
      */
     @Override
     public FilterReply decide(ILoggingEvent iLoggingEvent) {
-        System.out.println(iLoggingEvent.getLoggerName());
         if (iLoggingEvent.getLoggerName().startsWith("com.example.authservice")) {
             return FilterReply.ACCEPT;
         }
