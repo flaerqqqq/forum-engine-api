@@ -26,6 +26,7 @@ public interface JwtService {
      */
     String generate(UserDetails userDetails);
 
+    String generateRefreshToken(String userId);
 
     /**
      * Extracts the username from the given JWT token.

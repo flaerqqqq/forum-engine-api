@@ -31,6 +31,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.time.expiration}")
     private long expirationTime;
 
+    @Value("${jwt.refresh.time.expiration}")
+    private long refreshTokenExpirationTime;
+
     /**
      * Constructs a new {@link JwtServiceImpl} instance with the specified secret key.
      *
@@ -55,6 +58,18 @@ public class JwtServiceImpl implements JwtService {
         Date issuedAt = new Date();
         Date expiredAt = new Date(issuedAt.getTime() + expirationTime);
         return buildToken(issuedAt, expiredAt, userDetails);
+    }
+
+    @Override
+    public String generateRefreshToken(String userId) {
+        Date issuedAt = new Date();
+        Date expiredAt = new Date(issuedAt.getTime() + refreshTokenExpirationTime);
+        return Jwts.builder()
+                .setSubject(userId)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiredAt)
+                .signWith(secretKey)
+                .compact();
     }
 
     /**
