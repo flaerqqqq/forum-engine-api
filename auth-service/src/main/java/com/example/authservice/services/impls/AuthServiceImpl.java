@@ -75,13 +75,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Authenticates a user and generates a JWT token upon successful login.
+     * Authenticates a user and generates a JWT tokens upon successful login.
      * <p>
-     * The method retrieves user details, performs authentication, and generates a JWT token for authorized users.
+     * The method retrieves user details, performs authentication, and generates a JWT tokens for authorized users.
      * </p>
      *
      * @param request the {@link LoginRequestDto} containing user login credentials
-     * @return a {@link LoginJwtResponseDto} containing the generated JWT token
+     * @return a {@link LoginJwtResponseDto} containing the generated JWT tokens
      * @throws UserNotFoundException if the user with the specified username is not found
      * @throws IncorrectPasswordException if the authentication fails due to incorrect password
      */
