@@ -25,4 +25,6 @@ public class LoginJwtResponseDto {
      * </p>
      */
     private String token;
+
+    private String refreshToken;
 }
