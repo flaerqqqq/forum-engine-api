@@ -7,11 +7,12 @@ import com.example.authservice.exceptions.UserNotFoundException;
 import com.example.authservice.mappers.RefreshTokenMapper;
 import com.example.authservice.repositories.AuthUserRepository;
 import com.example.authservice.repositories.RefreshTokenRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
 
@@ -45,10 +46,39 @@ public class RefreshTokenServiceTest {
     private RefreshToken refreshToken;
     private RefreshTokenDto refreshTokenDto;
 
+    @BeforeEach
+    void initialization() {
+        authUser = AuthUser.builder()
+                .id(userId)
+                .userRoles(null)
+                .username("username")
+                .password("1234")
+                .build();
+
+        refreshToken = RefreshToken.builder()
+                .id(1234L)
+                .token(jwtToken)
+                .authUser(authUser)
+                .build();
+
+        refreshTokenDto = RefreshTokenDto.builder()
+                .id(1234L)
+                .token(jwtToken)
+                .userId(userId)
+                .build();
+    }
+
+    @AfterEach
+    void cleanUp() {
+        authUser = null;
+        refreshToken = null;
+        refreshTokenDto = null;
+    }
+
     @Test
     public void generateRefreshToken_shouldReturnToken_ifUserExists() {
         when(authUserRepository.findById(anyString())).thenReturn(Optional.of(authUser));
-        when(jwtService.generate(any(UserDetails.class))).thenReturn(jwtToken);
+        when(jwtService.generateRefreshToken(anyString())).thenReturn(jwtToken);
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(refreshToken);
         when(refreshTokenMapper.toDto(any(RefreshToken.class))).thenReturn(refreshTokenDto);
 

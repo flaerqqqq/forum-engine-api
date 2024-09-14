@@ -96,6 +96,7 @@ public class AuthServiceTest {
                 .build();
 
         authUser = AuthUser.builder()
+                .id(userId)
                 .username("username")
                 .password(password)
                 .build();
@@ -150,6 +151,7 @@ public class AuthServiceTest {
         userRole = null;
         registerRequest = null;
         registerResponse = null;
+        refreshTokenDto = null;
     }
 
     @Test
