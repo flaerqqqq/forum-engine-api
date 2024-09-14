@@ -1,11 +1,8 @@
 package com.example.authservice.services.impls;
 
 import com.example.authservice.clients.UserClient;
+import com.example.authservice.dtos.*;
 import com.example.authservice.request.UserServiceCreateRequestDto;
-import com.example.authservice.dtos.LoginJwtResponseDto;
-import com.example.authservice.dtos.LoginRequestDto;
-import com.example.authservice.dtos.UserRegisterRequestDto;
-import com.example.authservice.dtos.UserRegisterResponseDto;
 import com.example.authservice.entities.AuthUser;
 import com.example.authservice.entities.Role;
 import com.example.authservice.entities.UserRole;
@@ -16,8 +13,10 @@ import com.example.authservice.repositories.AuthUserRepository;
 import com.example.authservice.repositories.RoleRepository;
 import com.example.authservice.repositories.UserRoleRepository;
 import com.example.authservice.security.CustomUserDetails;
+import com.example.authservice.security.CustomUserDetailsService;
 import com.example.authservice.services.AuthService;
 import com.example.authservice.services.JwtService;
+import com.example.authservice.services.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,8 +42,10 @@ public class AuthServiceImpl implements AuthService {
     private final UserRoleRepository userRoleRepository;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthUserRepository authUserRepository;
+    private final CustomUserDetailsService customUserDetailsService;
 
 
     /**
@@ -94,8 +95,12 @@ public class AuthServiceImpl implements AuthService {
 
         CustomUserDetails userDetails = new CustomUserDetails(authUser);
         String jwtToken = jwtService.generate(userDetails);
+        RefreshTokenDto refreshTokenDto = refreshTokenService.generateRefreshToken(authUser.getId());
 
-        return new LoginJwtResponseDto(jwtToken);
+        return LoginJwtResponseDto.builder()
+                .token(jwtToken)
+                .refreshToken(refreshTokenDto.getToken())
+                .build();
     }
 
     /**
