@@ -1,12 +1,9 @@
 package com.example.authservice.services;
 
 import com.example.authservice.clients.UserClient;
+import com.example.authservice.dtos.*;
 import com.example.authservice.request.UserServiceCreateRequestDto;
 import com.example.authservice.response.UserServiceResponseDto;
-import com.example.authservice.dtos.LoginJwtResponseDto;
-import com.example.authservice.dtos.LoginRequestDto;
-import com.example.authservice.dtos.UserRegisterRequestDto;
-import com.example.authservice.dtos.UserRegisterResponseDto;
 import com.example.authservice.entities.AuthUser;
 import com.example.authservice.entities.Role;
 import com.example.authservice.entities.UserRole;
@@ -76,6 +73,7 @@ public class AuthServiceTest {
     private LocalDateTime createdAt = LocalDateTime.now();
     private String id = "uuid";
     private Long roleId = 1L;
+    private String userId = "id";
     private String jwtToken = "jwtToken";
     private String refreshToken = "refreshToken";
     private String password = "password";
@@ -88,7 +86,7 @@ public class AuthServiceTest {
     private LoginRequestDto loginRequest;
     private LoginJwtResponseDto loginResponse;
     private AuthUser authUser;
-    private final RefreshTokenDto refreshTokenDto;
+    private RefreshTokenDto refreshTokenDto;
 
     @BeforeEach
     void setUp() {
@@ -142,6 +140,7 @@ public class AuthServiceTest {
         refreshTokenDto = RefreshTokenDto.builder()
                 .id(1234L)
                 .token(refreshToken)
+                .userId(userId)
                 .build();
     }
 
