@@ -60,6 +60,17 @@ public class JwtServiceImpl implements JwtService {
         return buildToken(issuedAt, expiredAt, userDetails);
     }
 
+    /**
+     * Generates a refresh token for the specified user.
+     * <p>
+     * This method creates a refresh token that can be used to obtain a new JWT token
+     * when the current JWT token expires. Refresh tokens are typically long-lived and used
+     * to maintain user sessions without requiring re-authentication.
+     * </p>
+     *
+     * @param userId the unique identifier of the user for whom the refresh token is generated
+     * @return the generated refresh token as a {@link String}
+     */
     @Override
     public String generateRefreshToken(String userId) {
         Date issuedAt = new Date();
@@ -150,7 +161,4 @@ public class JwtServiceImpl implements JwtService {
             throw new RuntimeException(e);
         }
     }
-
-
-
 }
