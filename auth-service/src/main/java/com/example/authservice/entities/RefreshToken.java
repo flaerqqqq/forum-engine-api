@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "refresh_tokns")
+@Table(name = "refresh_tokens")
 public class RefreshToken {
 
     @Id
