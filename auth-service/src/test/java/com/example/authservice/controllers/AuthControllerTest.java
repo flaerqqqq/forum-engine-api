@@ -77,6 +77,7 @@ public class AuthControllerTest {
                 .build();
         expectedJwtResponseDto = LoginJwtResponseDto.builder()
                 .token("token")
+                .refreshToken("refreshToken")
                 .build();
     }
 

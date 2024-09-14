@@ -67,6 +67,9 @@ public class AuthServiceTest {
     @MockBean
     AuthUserRepository authUserRepository;
 
+    @MockBean
+    RefreshTokenService refreshTokenService;
+
     @Autowired
     AuthService authService;
 
@@ -74,6 +77,7 @@ public class AuthServiceTest {
     private String id = "uuid";
     private Long roleId = 1L;
     private String jwtToken = "jwtToken";
+    private String refreshToken = "refreshToken";
     private String password = "password";
 
     private UserServiceResponseDto userCreateResponse;
@@ -84,6 +88,7 @@ public class AuthServiceTest {
     private LoginRequestDto loginRequest;
     private LoginJwtResponseDto loginResponse;
     private AuthUser authUser;
+    private final RefreshTokenDto refreshTokenDto;
 
     @BeforeEach
     void setUp() {
@@ -131,6 +136,12 @@ public class AuthServiceTest {
 
         loginResponse = LoginJwtResponseDto.builder()
                 .token(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        refreshTokenDto = RefreshTokenDto.builder()
+                .id(1234L)
+                .token(refreshToken)
                 .build();
     }
 
@@ -186,6 +197,7 @@ public class AuthServiceTest {
         when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(token);
         when(jwtService.generate(any(UserDetails.class))).thenReturn(jwtToken);
+        when(refreshTokenService.generateRefreshToken(anyString())).thenReturn(refreshTokenDto);
 
         LoginJwtResponseDto actualResponse = authService.login(loginRequest);
 
