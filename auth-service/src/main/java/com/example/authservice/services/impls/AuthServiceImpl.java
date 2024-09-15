@@ -2,6 +2,9 @@ package com.example.authservice.services.impls;
 
 import com.example.authservice.clients.UserClient;
 import com.example.authservice.dtos.*;
+import com.example.authservice.entities.RefreshToken;
+import com.example.authservice.exceptions.InvalidRefreshTokenException;
+import com.example.authservice.repositories.RefreshTokenRepository;
 import com.example.authservice.request.UserServiceCreateRequestDto;
 import com.example.authservice.entities.AuthUser;
 import com.example.authservice.entities.Role;
@@ -46,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthUserRepository authUserRepository;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     /**
@@ -105,7 +109,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginJwtResponseDto refresh(String refreshToken) {
-        return null;
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() ->
+                new InvalidRefreshTokenException("Such token is not found in database: %s".formatted(refreshToken)));
+
+        AuthUser authUser = refreshTokenEntity.getAuthUser();
+
+        String jwtToken = jwtService.generate(new CustomUserDetails(authUser));
+        String newRefreshToken = refreshTokenService.generateRefreshToken(authUser.getId()).getToken();
+
+        return LoginJwtResponseDto.builder()
+                .token(jwtToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
 
     /**
