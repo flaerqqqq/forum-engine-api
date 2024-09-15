@@ -1,9 +1,6 @@
 package com.example.authservice.controllers;
 
-import com.example.authservice.dtos.LoginJwtResponseDto;
-import com.example.authservice.dtos.LoginRequestDto;
-import com.example.authservice.dtos.UserRegisterRequestDto;
-import com.example.authservice.dtos.UserRegisterResponseDto;
+import com.example.authservice.dtos.*;
 import com.example.authservice.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +60,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginJwtResponseDto> login(@RequestBody LoginRequestDto request) {
         LoginJwtResponseDto response = authService.login(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginJwtResponseDto> login(@RequestBody RefreshTokenRequestDto request) {
+        LoginJwtResponseDto response = authService.refresh(request.getToken());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

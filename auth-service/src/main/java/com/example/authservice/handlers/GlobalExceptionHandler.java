@@ -1,5 +1,6 @@
 package com.example.authservice.handlers;
 
+import com.example.authservice.exceptions.InvalidRefreshTokenException;
 import com.example.authservice.exceptions.UserServiceException;
 import com.example.authservice.exceptions.IncorrectPasswordException;
 import com.example.authservice.exceptions.UserNotFoundException;
@@ -89,6 +90,14 @@ public class GlobalExceptionHandler {
         }
         ErrorResponse errorResponse = ErrorResponse.builder(
                 ex, HttpStatus.BAD_REQUEST, errors.toString()).build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({
+            InvalidRefreshTokenException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequestException(Exception ex) {
+        ErrorResponse errorResponse = ErrorResponse.builder(ex, HttpStatus.BAD_REQUEST, ex.getMessage()).build();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

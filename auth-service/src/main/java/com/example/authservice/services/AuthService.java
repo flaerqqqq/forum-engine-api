@@ -37,4 +37,6 @@ public interface AuthService {
      * @return the {@link LoginJwtResponseDto} containing the JWT token for the authenticated user
      */
     LoginJwtResponseDto login(LoginRequestDto request);
+
+    LoginJwtResponseDto refresh(String refreshToken);
 }

@@ -103,6 +103,11 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    @Override
+    public LoginJwtResponseDto refresh(String refreshToken) {
+        return null;
+    }
+
     /**
      * Authenticates the user based on the provided login credentials.
      * <p>
