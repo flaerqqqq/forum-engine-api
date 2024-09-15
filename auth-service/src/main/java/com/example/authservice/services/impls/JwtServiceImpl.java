@@ -31,6 +31,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.time.expiration}")
     private long expirationTime;
 
+    @Value("${jwt.refresh.time.expiration}")
+    private long refreshTokenExpirationTime;
+
     /**
      * Constructs a new {@link JwtServiceImpl} instance with the specified secret key.
      *
@@ -55,6 +58,29 @@ public class JwtServiceImpl implements JwtService {
         Date issuedAt = new Date();
         Date expiredAt = new Date(issuedAt.getTime() + expirationTime);
         return buildToken(issuedAt, expiredAt, userDetails);
+    }
+
+    /**
+     * Generates a refresh token for the specified user.
+     * <p>
+     * This method creates a refresh token that can be used to obtain a new JWT token
+     * when the current JWT token expires. Refresh tokens are typically long-lived and used
+     * to maintain user sessions without requiring re-authentication.
+     * </p>
+     *
+     * @param userId the unique identifier of the user for whom the refresh token is generated
+     * @return the generated refresh token as a {@link String}
+     */
+    @Override
+    public String generateRefreshToken(String userId) {
+        Date issuedAt = new Date();
+        Date expiredAt = new Date(issuedAt.getTime() + refreshTokenExpirationTime);
+        return Jwts.builder()
+                .setSubject(userId)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiredAt)
+                .signWith(secretKey)
+                .compact();
     }
 
     /**
@@ -135,7 +161,4 @@ public class JwtServiceImpl implements JwtService {
             throw new RuntimeException(e);
         }
     }
-
-
-
 }

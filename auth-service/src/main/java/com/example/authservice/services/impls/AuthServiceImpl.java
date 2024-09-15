@@ -1,11 +1,11 @@
 package com.example.authservice.services.impls;
 
 import com.example.authservice.clients.UserClient;
+import com.example.authservice.dtos.*;
+import com.example.authservice.entities.RefreshToken;
+import com.example.authservice.exceptions.InvalidRefreshTokenException;
+import com.example.authservice.repositories.RefreshTokenRepository;
 import com.example.authservice.request.UserServiceCreateRequestDto;
-import com.example.authservice.dtos.LoginJwtResponseDto;
-import com.example.authservice.dtos.LoginRequestDto;
-import com.example.authservice.dtos.UserRegisterRequestDto;
-import com.example.authservice.dtos.UserRegisterResponseDto;
 import com.example.authservice.entities.AuthUser;
 import com.example.authservice.entities.Role;
 import com.example.authservice.entities.UserRole;
@@ -16,8 +16,10 @@ import com.example.authservice.repositories.AuthUserRepository;
 import com.example.authservice.repositories.RoleRepository;
 import com.example.authservice.repositories.UserRoleRepository;
 import com.example.authservice.security.CustomUserDetails;
+import com.example.authservice.security.CustomUserDetailsService;
 import com.example.authservice.services.AuthService;
 import com.example.authservice.services.JwtService;
+import com.example.authservice.services.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,9 +45,11 @@ public class AuthServiceImpl implements AuthService {
     private final UserRoleRepository userRoleRepository;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthUserRepository authUserRepository;
-
+    private final CustomUserDetailsService customUserDetailsService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * Registers a new user by creating a user entity and assigning a default role.
@@ -74,13 +78,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Authenticates a user and generates a JWT token upon successful login.
+     * Authenticates a user and generates JWT tokens upon successful login.
      * <p>
-     * The method retrieves user details, performs authentication, and generates a JWT token for authorized users.
+     * The method retrieves user details, performs authentication, and generates JWT tokens for authorized users.
      * </p>
      *
      * @param request the {@link LoginRequestDto} containing user login credentials
-     * @return a {@link LoginJwtResponseDto} containing the generated JWT token
+     * @return a {@link LoginJwtResponseDto} containing the generated JWT tokens
      * @throws UserNotFoundException if the user with the specified username is not found
      * @throws IncorrectPasswordException if the authentication fails due to incorrect password
      */
@@ -94,8 +98,39 @@ public class AuthServiceImpl implements AuthService {
 
         CustomUserDetails userDetails = new CustomUserDetails(authUser);
         String jwtToken = jwtService.generate(userDetails);
+        RefreshTokenDto refreshTokenDto = refreshTokenService.generateRefreshToken(authUser.getId());
 
-        return new LoginJwtResponseDto(jwtToken);
+        return LoginJwtResponseDto.builder()
+                .token(jwtToken)
+                .refreshToken(refreshTokenDto.getToken())
+                .build();
+    }
+
+    /**
+     * Refreshes JWT tokens using a valid refresh token.
+     * <p>
+     * The method retrieves the existing refresh token from the database, generates a new JWT token, and returns
+     * both the new JWT token and a new refresh token.
+     * </p>
+     *
+     * @param refreshToken the refresh token used to generate a new JWT token
+     * @return a {@link LoginJwtResponseDto} containing the new JWT token and refresh token
+     * @throws InvalidRefreshTokenException if the refresh token is not found in the database
+     */
+    @Override
+    public LoginJwtResponseDto refresh(String refreshToken) {
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() ->
+                new InvalidRefreshTokenException("Such token is not found in database: %s".formatted(refreshToken)));
+
+        AuthUser authUser = refreshTokenEntity.getAuthUser();
+
+        String jwtToken = jwtService.generate(new CustomUserDetails(authUser));
+        String newRefreshToken = refreshTokenService.generateRefreshToken(authUser.getId()).getToken();
+
+        return LoginJwtResponseDto.builder()
+                .token(jwtToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
 
     /**
@@ -147,7 +182,7 @@ public class AuthServiceImpl implements AuthService {
      * @param password the encoded password of the user
      * @return the created {@link AuthUser} entity
      */
-    private AuthUser createAuthUserEntity(String id,String username, String password) {
+    private AuthUser createAuthUserEntity(String id, String username, String password) {
         AuthUser authUser = AuthUser.builder()
                 .id(id)
                 .username(username)

@@ -1,10 +1,8 @@
 package com.example.authservice.controllers;
 
-import com.example.authservice.dtos.LoginJwtResponseDto;
-import com.example.authservice.dtos.LoginRequestDto;
-import com.example.authservice.dtos.UserRegisterRequestDto;
-import com.example.authservice.dtos.UserRegisterResponseDto;
+import com.example.authservice.dtos.*;
 import com.example.authservice.exceptions.IncorrectPasswordException;
+import com.example.authservice.exceptions.InvalidRefreshTokenException;
 import com.example.authservice.exceptions.UserNotFoundException;
 import com.example.authservice.services.AuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +23,7 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,6 +47,7 @@ public class AuthControllerTest {
     private LoginRequestDto validLoginRequest;
     private LoginRequestDto invalidLoginRequest;
     private LoginJwtResponseDto expectedJwtResponseDto;
+    private RefreshTokenRequestDto refreshTokenRequest;
 
     @BeforeEach
     void setUp() {
@@ -77,6 +77,10 @@ public class AuthControllerTest {
                 .build();
         expectedJwtResponseDto = LoginJwtResponseDto.builder()
                 .token("token")
+                .refreshToken("refreshToken")
+                .build();
+        refreshTokenRequest = RefreshTokenRequestDto.builder()
+                .token("refreshToken")
                 .build();
     }
 
@@ -165,5 +169,40 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(invalidLoginRequest))
         ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refresh_shouldReturnJwtTokens_ifRefreshTokenValid() throws Exception {
+        when(authService.refresh(anyString())).thenReturn(expectedJwtResponseDto);
+
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(refreshTokenRequest)))
+                .andReturn();
+
+        String jsonString = result.getResponse().getContentAsString();
+        LoginJwtResponseDto actualResponse = objectMapper.readValue(jsonString, LoginJwtResponseDto.class);
+
+        assertThat(actualResponse).isEqualTo(expectedJwtResponseDto);
+    }
+
+    @Test
+    void refresh_shouldReturn200StatusCode_ifRefreshTokenValid() throws Exception {
+        when(authService.refresh(anyString())).thenReturn(expectedJwtResponseDto);
+
+       mockMvc.perform(post("/api/v1/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsBytes(refreshTokenRequest)))
+               .andExpect(status().isOk());
+    }
+
+    @Test
+    void refresh_shouldReturn400StatusCode_IfRefreshTokenInvalid() throws Exception {
+        when(authService.refresh(anyString())).thenThrow(InvalidRefreshTokenException.class);
+
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(refreshTokenRequest)))
+                .andExpect(status().isBadRequest());
     }
 }

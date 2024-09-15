@@ -1,12 +1,12 @@
 package com.example.authservice.services;
 
 import com.example.authservice.clients.UserClient;
+import com.example.authservice.dtos.*;
+import com.example.authservice.entities.RefreshToken;
+import com.example.authservice.exceptions.InvalidRefreshTokenException;
+import com.example.authservice.repositories.RefreshTokenRepository;
 import com.example.authservice.request.UserServiceCreateRequestDto;
 import com.example.authservice.response.UserServiceResponseDto;
-import com.example.authservice.dtos.LoginJwtResponseDto;
-import com.example.authservice.dtos.LoginRequestDto;
-import com.example.authservice.dtos.UserRegisterRequestDto;
-import com.example.authservice.dtos.UserRegisterResponseDto;
 import com.example.authservice.entities.AuthUser;
 import com.example.authservice.entities.Role;
 import com.example.authservice.entities.UserRole;
@@ -67,13 +67,21 @@ public class AuthServiceTest {
     @MockBean
     AuthUserRepository authUserRepository;
 
+    @MockBean
+    RefreshTokenService refreshTokenService;
+
+    @MockBean
+    RefreshTokenRepository refreshTokenRepository;
+
     @Autowired
     AuthService authService;
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private String id = "uuid";
     private Long roleId = 1L;
+    private String userId = "id";
     private String jwtToken = "jwtToken";
+    private String refreshToken = "refreshToken";
     private String password = "password";
 
     private UserServiceResponseDto userCreateResponse;
@@ -84,6 +92,8 @@ public class AuthServiceTest {
     private LoginRequestDto loginRequest;
     private LoginJwtResponseDto loginResponse;
     private AuthUser authUser;
+    private RefreshTokenDto refreshTokenDto;
+    private RefreshToken refreshTokenEntity;
 
     @BeforeEach
     void setUp() {
@@ -93,6 +103,7 @@ public class AuthServiceTest {
                 .build();
 
         authUser = AuthUser.builder()
+                .id(userId)
                 .username("username")
                 .password(password)
                 .build();
@@ -131,6 +142,19 @@ public class AuthServiceTest {
 
         loginResponse = LoginJwtResponseDto.builder()
                 .token(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        refreshTokenDto = RefreshTokenDto.builder()
+                .id(1234L)
+                .token(refreshToken)
+                .userId(userId)
+                .build();
+
+        refreshTokenEntity = RefreshToken.builder()
+                .id(123L)
+                .authUser(authUser)
+                .token(refreshToken)
                 .build();
     }
 
@@ -140,6 +164,8 @@ public class AuthServiceTest {
         userRole = null;
         registerRequest = null;
         registerResponse = null;
+        refreshTokenDto = null;
+        refreshTokenEntity = null;
     }
 
     @Test
@@ -186,6 +212,7 @@ public class AuthServiceTest {
         when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(token);
         when(jwtService.generate(any(UserDetails.class))).thenReturn(jwtToken);
+        when(refreshTokenService.generateRefreshToken(anyString())).thenReturn(refreshTokenDto);
 
         LoginJwtResponseDto actualResponse = authService.login(loginRequest);
 
@@ -208,5 +235,24 @@ public class AuthServiceTest {
                 .thenReturn(token);
 
         assertThrows(IncorrectPasswordException.class, () -> authService.login(loginRequest));
+    }
+
+    @Test
+    void refresh_shouldReturnJwtTokens_ifRefreshTokenValid() {
+        when(refreshTokenRepository.findByToken(anyString())).thenReturn(Optional.of(refreshTokenEntity));
+        when(refreshTokenService.generateRefreshToken(anyString())).thenReturn(refreshTokenDto);
+        when(jwtService.generate(any(UserDetails.class))).thenReturn(jwtToken);
+
+        LoginJwtResponseDto actualResponse = authService.refresh(refreshToken);
+
+        assertThat(actualResponse).isEqualTo(loginResponse);
+    }
+
+    @Test
+    void refresh_shouldThrow_ifRefreshTokenInvalid() {
+        when(refreshTokenService.generateRefreshToken(anyString())).thenThrow(InvalidRefreshTokenException.class);
+
+        assertThrows(InvalidRefreshTokenException.class, () ->
+                authService.refresh(refreshToken));
     }
 }

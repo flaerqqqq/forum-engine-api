@@ -26,6 +26,18 @@ public interface JwtService {
      */
     String generate(UserDetails userDetails);
 
+    /**
+     * Generates a refresh token for the specified user.
+     * <p>
+     * This method creates a refresh token that can be used to obtain a new JWT token
+     * when the current JWT token expires. Refresh tokens are usually long-lived and are
+     * used to maintain user sessions without requiring re-authentication.
+     * </p>
+     *
+     * @param userId the unique identifier of the user for whom the refresh token is generated
+     * @return the generated refresh token as a {@link String}
+     */
+    String generateRefreshToken(String userId);
 
     /**
      * Extracts the username from the given JWT token.

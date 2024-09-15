@@ -6,9 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Data transfer object (DTO) for the response containing a JWT token after a successful login.
+ * Data transfer object (DTO) for the response containing a JWT tokens after a successful login.
  * <p>
- * This DTO is used to encapsulate the JWT token that is returned to the client after
+ * This DTO is used to encapsulate the JWT tokens that is returned to the client after
  * successful authentication. The token can be used for subsequent requests to access protected resources.
  * </p>
  */
@@ -25,4 +25,12 @@ public class LoginJwtResponseDto {
      * </p>
      */
     private String token;
+
+    /**
+     * The refresh token issued along with the JWT token.
+     * <p>
+     * This token is used to obtain a new JWT token when the original one expires, without requiring the user to log in again.
+     * </p>
+     */
+    private String refreshToken;
 }
