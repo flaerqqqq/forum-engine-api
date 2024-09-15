@@ -2,6 +2,9 @@ package com.example.authservice.services;
 
 import com.example.authservice.clients.UserClient;
 import com.example.authservice.dtos.*;
+import com.example.authservice.entities.RefreshToken;
+import com.example.authservice.exceptions.InvalidRefreshTokenException;
+import com.example.authservice.repositories.RefreshTokenRepository;
 import com.example.authservice.request.UserServiceCreateRequestDto;
 import com.example.authservice.response.UserServiceResponseDto;
 import com.example.authservice.entities.AuthUser;
@@ -67,6 +70,9 @@ public class AuthServiceTest {
     @MockBean
     RefreshTokenService refreshTokenService;
 
+    @MockBean
+    RefreshTokenRepository refreshTokenRepository;
+
     @Autowired
     AuthService authService;
 
@@ -87,6 +93,7 @@ public class AuthServiceTest {
     private LoginJwtResponseDto loginResponse;
     private AuthUser authUser;
     private RefreshTokenDto refreshTokenDto;
+    private RefreshToken refreshTokenEntity;
 
     @BeforeEach
     void setUp() {
@@ -143,6 +150,12 @@ public class AuthServiceTest {
                 .token(refreshToken)
                 .userId(userId)
                 .build();
+
+        refreshTokenEntity = RefreshToken.builder()
+                .id(123L)
+                .authUser(authUser)
+                .token(refreshToken)
+                .build();
     }
 
     @AfterEach
@@ -152,6 +165,7 @@ public class AuthServiceTest {
         registerRequest = null;
         registerResponse = null;
         refreshTokenDto = null;
+        refreshTokenEntity = null;
     }
 
     @Test
@@ -221,5 +235,24 @@ public class AuthServiceTest {
                 .thenReturn(token);
 
         assertThrows(IncorrectPasswordException.class, () -> authService.login(loginRequest));
+    }
+
+    @Test
+    void refresh_shouldReturnJwtTokens_ifRefreshTokenValid() {
+        when(refreshTokenRepository.findByToken(anyString())).thenReturn(Optional.of(refreshTokenEntity));
+        when(refreshTokenService.generateRefreshToken(anyString())).thenReturn(refreshTokenDto);
+        when(jwtService.generate(any(UserDetails.class))).thenReturn(jwtToken);
+
+        LoginJwtResponseDto actualResponse = authService.refresh(refreshToken);
+
+        assertThat(actualResponse).isEqualTo(loginResponse);
+    }
+
+    @Test
+    void refresh_shouldThrow_ifRefreshTokenInvalid() {
+        when(refreshTokenService.generateRefreshToken(anyString())).thenThrow(InvalidRefreshTokenException.class);
+
+        assertThrows(InvalidRefreshTokenException.class, () ->
+                authService.refresh(refreshToken));
     }
 }
