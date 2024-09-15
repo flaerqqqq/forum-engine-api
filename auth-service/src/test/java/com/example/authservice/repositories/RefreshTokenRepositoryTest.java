@@ -29,6 +29,7 @@ public class RefreshTokenRepositoryTest extends PostgreSQLTestContainerInitializ
     AuthUserRepository authUserRepository;
 
     final String userId = "1234";
+    final String refreshTokenValue = "refreshTokenValue";
 
     @BeforeEach
     void initialization() {
@@ -39,7 +40,7 @@ public class RefreshTokenRepositoryTest extends PostgreSQLTestContainerInitializ
                 .build();
 
         RefreshToken refreshToken = RefreshToken.builder()
-                .token("token")
+                .token(refreshTokenValue)
                 .authUser(authUser)
                 .build();
 
@@ -67,4 +68,18 @@ public class RefreshTokenRepositoryTest extends PostgreSQLTestContainerInitializ
         assertThat(refreshToken).isNotPresent();
     }
 
+    @Test
+    void findByToken_shouldReturnRefreshToken_ifTokenExistsInDB() {
+        Optional<RefreshToken> foundToken = refreshTokenRepository.findByToken(refreshTokenValue);
+
+        assertThat(foundToken).isPresent();
+        assertThat(foundToken.get().getToken()).isEqualTo(refreshTokenValue);
+    }
+
+    @Test
+    void findByToken_shouldReturnNull_ifTokenDoesNotExistInDB() {
+        Optional<RefreshToken> foundToken = refreshTokenRepository.findByToken("somethingDifferent");
+
+        assertThat(foundToken).isEmpty();
+    }
 }
