@@ -14,18 +14,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST controller for handling authentication-related requests.
- * Provides endpoints for user registration and login.
- *
  * <p>
- * - The controller handles HTTP POST requests for user registration and login.
- * - Uses {@link AuthService} to perform authentication operations.
+ * Provides endpoints for user registration, login, and JWT token refresh.
+ * This controller handles HTTP POST requests and interacts with the {@link AuthService}
+ * to perform authentication operations.
  * </p>
  *
+ * <ul>
+ *   <li>Handles user registration by creating a new account and returning user details.</li>
+ *   <li>Handles user login and returns a JWT token along with user details.</li>
+ *   <li>Handles token refresh by issuing a new JWT token based on a valid refresh token.</li>
+ * </ul>
+ *
+ * <p>
  * Annotations:
- * - {@code @RestController}: Marks the class as a Spring MVC controller that returns JSON responses.
- * - {@code @RequestMapping("/api/v1/auth")}: Maps HTTP requests to "/api/v1/auth" to this controller.
- * - {@code @RequiredArgsConstructor}: Automatically generates a constructor for final fields (AuthService).
- * - {@code @Slf4j}: Provides logging capabilities using SLF4J.
+ * <ul>
+ *   <li>{@code @RestController}: Marks the class as a Spring MVC controller that returns JSON responses.</li>
+ *   <li>{@code @RequestMapping("/api/v1/auth")}: Maps HTTP requests to "/api/v1/auth" to this controller.</li>
+ *   <li>{@code @RequiredArgsConstructor}: Automatically generates a constructor for final fields (AuthService).</li>
+ *   <li>{@code @Slf4j}: Provides logging capabilities using SLF4J.</li>
+ * </ul>
+ * </p>
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -63,6 +72,17 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+    /**
+     * Handles JWT refresh token requests.
+     * <p>
+     * This endpoint accepts a refresh token and issues a new JWT token if the refresh token is valid.
+     * The response includes a new JWT token and user details, with a status of {@link HttpStatus#OK}.
+     * </p>
+     *
+     * @param request the refresh token encapsulated in a {@link RefreshTokenRequestDto}
+     * @return a {@link ResponseEntity} containing the {@link LoginJwtResponseDto} with the new JWT token and user details
+     */
     @PostMapping("/refresh")
     public ResponseEntity<LoginJwtResponseDto> refresh(@RequestBody RefreshTokenRequestDto request) {
         LoginJwtResponseDto response = authService.refresh(request.getToken());

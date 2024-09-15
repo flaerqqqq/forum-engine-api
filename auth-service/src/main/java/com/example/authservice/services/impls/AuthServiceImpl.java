@@ -51,7 +51,6 @@ public class AuthServiceImpl implements AuthService {
     private final CustomUserDetailsService customUserDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
 
-
     /**
      * Registers a new user by creating a user entity and assigning a default role.
      * <p>
@@ -79,9 +78,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Authenticates a user and generates a JWT tokens upon successful login.
+     * Authenticates a user and generates JWT tokens upon successful login.
      * <p>
-     * The method retrieves user details, performs authentication, and generates a JWT tokens for authorized users.
+     * The method retrieves user details, performs authentication, and generates JWT tokens for authorized users.
      * </p>
      *
      * @param request the {@link LoginRequestDto} containing user login credentials
@@ -107,6 +106,17 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /**
+     * Refreshes JWT tokens using a valid refresh token.
+     * <p>
+     * The method retrieves the existing refresh token from the database, generates a new JWT token, and returns
+     * both the new JWT token and a new refresh token.
+     * </p>
+     *
+     * @param refreshToken the refresh token used to generate a new JWT token
+     * @return a {@link LoginJwtResponseDto} containing the new JWT token and refresh token
+     * @throws InvalidRefreshTokenException if the refresh token is not found in the database
+     */
     @Override
     public LoginJwtResponseDto refresh(String refreshToken) {
         RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() ->
@@ -172,7 +182,7 @@ public class AuthServiceImpl implements AuthService {
      * @param password the encoded password of the user
      * @return the created {@link AuthUser} entity
      */
-    private AuthUser createAuthUserEntity(String id,String username, String password) {
+    private AuthUser createAuthUserEntity(String id, String username, String password) {
         AuthUser authUser = AuthUser.builder()
                 .id(id)
                 .username(username)

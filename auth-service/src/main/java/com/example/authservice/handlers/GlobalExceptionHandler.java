@@ -17,20 +17,25 @@ import java.util.Map;
 
 /**
  * Global exception handler for managing exceptions across the application.
- * Provides centralized exception handling for various types of exceptions.
+ * <p>
+ * Provides centralized exception handling for various types of exceptions thrown
+ * by controllers. This class uses {@link ControllerAdvice} to handle exceptions
+ * globally and offers a unified way of dealing with errors.
+ * </p>
  *
  * <p>
- * - Uses {@link ControllerAdvice} to handle exceptions thrown by controllers.
- * - Handles general exceptions, user service-specific exceptions, and validation errors.
+ * - Handles general exceptions, user service-specific exceptions, validation errors,
+ *   and specific exceptions like {@link UserNotFoundException} and {@link IncorrectPasswordException}.
  * </p>
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-
     /**
      * Handles all general exceptions.
-     * This method captures any exception not specifically handled elsewhere and returns a generic error response.
+     * <p>
+     * Captures any exception not specifically handled elsewhere and returns a generic error response.
+     * </p>
      *
      * @param ex the exception that was thrown
      * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with a status of {@link HttpStatus#INTERNAL_SERVER_ERROR}
@@ -41,9 +46,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-
     /**
      * Handles exceptions specific to the user service, such as errors from Feign clients.
+     * <p>
+     * Provides the exception message along with an appropriate HTTP status code.
+     * </p>
      *
      * @param ex the {@link UserServiceException} that was thrown
      * @return a {@link ResponseEntity} containing the exception message and an appropriate HTTP status
@@ -56,6 +63,9 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles exceptions related to user credentials, such as user not found or incorrect password.
+     * <p>
+     * Returns an {@link ErrorResponse} with a status of {@link HttpStatus#UNAUTHORIZED}.
+     * </p>
      *
      * @param ex the {@link Exception} (either {@link UserNotFoundException} or {@link IncorrectPasswordException}) that was thrown
      * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with a status of {@link HttpStatus#UNAUTHORIZED}
@@ -65,13 +75,15 @@ public class GlobalExceptionHandler {
             IncorrectPasswordException.class
     })
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(Exception ex) {
-        ErrorResponse errorResponse = ErrorResponse.builder(ex, HttpStatus.UNAUTHORIZED,ex.getMessage()).build();
+        ErrorResponse errorResponse = ErrorResponse.builder(ex, HttpStatus.UNAUTHORIZED, ex.getMessage()).build();
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     /**
      * Handles validation errors from method arguments.
-     * This method processes validation exceptions and provides detailed information about validation errors.
+     * <p>
+     * Processes {@link MethodArgumentNotValidException} to provide detailed information about validation errors.
+     * </p>
      *
      * @param ex the {@link MethodArgumentNotValidException} that was thrown
      * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with a status of {@link HttpStatus#BAD_REQUEST}
@@ -93,6 +105,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Handles exceptions related to invalid refresh tokens.
+     * <p>
+     * Returns an {@link ErrorResponse} with a status of {@link HttpStatus#BAD_REQUEST}.
+     * </p>
+     *
+     * @param ex the {@link InvalidRefreshTokenException} that was thrown
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with a status of {@link HttpStatus#BAD_REQUEST}
+     */
     @ExceptionHandler({
             InvalidRefreshTokenException.class
     })
