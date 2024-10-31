@@ -53,7 +53,8 @@ public class AuthServiceImpl implements AuthService {
     private final EmailConfirmEventProducer emailConfirmEventProducer;
 
     /**
-     * Registers a new user by creating a user entity and assigning a default role.
+     * Registers a new user by creating a user entity and assigning a default role,
+     * then sends an event to kafka to verify email.
      * <p>
      * The password is encoded before being saved, and roles are assigned based on default configuration.
      * </p>
