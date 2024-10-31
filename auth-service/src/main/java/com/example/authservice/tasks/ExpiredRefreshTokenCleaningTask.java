@@ -5,6 +5,7 @@ import com.example.authservice.repositories.RefreshTokenRepository;
 import com.example.authservice.services.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;

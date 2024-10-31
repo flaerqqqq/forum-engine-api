@@ -4,6 +4,7 @@ import com.example.authservice.clients.UserClient;
 import com.example.authservice.dtos.*;
 import com.example.authservice.entities.RefreshToken;
 import com.example.authservice.exceptions.InvalidRefreshTokenException;
+import com.example.authservice.producers.EmailConfirmEventProducer;
 import com.example.authservice.repositories.RefreshTokenRepository;
 import com.example.authservice.request.UserServiceCreateRequestDto;
 import com.example.authservice.response.UserServiceResponseDto;
@@ -31,6 +32,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -44,6 +46,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@ActiveProfiles({"test","dev"})
 public class AuthServiceTest {
 
     @MockBean
@@ -72,6 +75,9 @@ public class AuthServiceTest {
 
     @MockBean
     RefreshTokenRepository refreshTokenRepository;
+
+    @MockBean
+    EmailConfirmEventProducer emailConfirmEventProducer;
 
     @Autowired
     AuthService authService;
