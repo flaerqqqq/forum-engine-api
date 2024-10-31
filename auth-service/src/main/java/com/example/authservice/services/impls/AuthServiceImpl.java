@@ -4,6 +4,7 @@ import com.example.authservice.clients.UserClient;
 import com.example.authservice.dtos.*;
 import com.example.authservice.entities.RefreshToken;
 import com.example.authservice.exceptions.InvalidRefreshTokenException;
+import com.example.authservice.producers.EmailConfirmEventProducer;
 import com.example.authservice.repositories.RefreshTokenRepository;
 import com.example.authservice.request.UserServiceCreateRequestDto;
 import com.example.authservice.entities.AuthUser;
@@ -48,8 +49,8 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthUserRepository authUserRepository;
-    private final CustomUserDetailsService customUserDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailConfirmEventProducer emailConfirmEventProducer;
 
     /**
      * Registers a new user by creating a user entity and assigning a default role.
@@ -73,6 +74,8 @@ public class AuthServiceImpl implements AuthService {
                 new RoleNotFoundException("Role not found: %s".formatted(Role.RoleName.ROLE_USER)));
 
         assignRolesToUser(authUser, role);
+
+        emailConfirmEventProducer.sendEmailConfirmation(userCreateResponse.getId(), userCreateResponse.getEmail());
 
         return modelMapper.map(userCreateResponse, UserRegisterResponseDto.class);
     }
